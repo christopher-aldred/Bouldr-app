@@ -17,10 +17,11 @@ class AddRoute1 extends StatefulWidget {
 }
 
 class _AddRoute1State extends State<AddRoute1> {
+  Grade grade = Grade();
   final TextEditingController textControllerName = TextEditingController();
   final TextEditingController textControllerDescription =
       TextEditingController();
-  String dropdownSelection = "";
+  String dropdownValue = 'Select grade';
 
   void goToRouteDraw() {}
   @override
@@ -70,7 +71,31 @@ class _AddRoute1State extends State<AddRoute1> {
             ),
             Padding(
               padding: EdgeInsets.all(10),
-              child: DropdownSelection(dropdownSelection),
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: dropdownValue,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                style: TextStyle(color: HexColor("808080")),
+                underline: Container(
+                  height: 2,
+                  color: Colors.green,
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValue = newValue!;
+                  });
+                },
+                items: grade.gradeMatrix[1]
+                    .toSet()
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
@@ -81,63 +106,18 @@ class _AddRoute1State extends State<AddRoute1> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => AddRoute2(
-                          widget.venueId,
-                          widget.areaId,
-                          widget.sectionId,
-                          textControllerName.value.toString(),
-                          textControllerDescription.value.toString(),
-                          dropdownSelection,
-                        )))
+                        widget.venueId,
+                        widget.areaId,
+                        widget.sectionId,
+                        textControllerName.text.toString(),
+                        textControllerDescription.text.toString(),
+                        dropdownValue))),
+            FocusScope.of(context).unfocus()
           },
           label: Text('Next'),
           icon: Icon(Icons.check),
         ),
       ),
-    );
-  }
-}
-
-/// This is the stateful widget that the main application instantiates.
-class DropdownSelection extends StatefulWidget {
-  String returnValue;
-  DropdownSelection(this.returnValue, {Key? key}) : super(key: key);
-
-  @override
-  State<DropdownSelection> createState() => _DropdownSelectionState();
-}
-
-/// This is the private State class that goes with DropdownSelection.
-class _DropdownSelectionState extends State<DropdownSelection> {
-  String dropdownValue = 'Select grade';
-  Grade grade = Grade();
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      isExpanded: true,
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_downward),
-      iconSize: 24,
-      elevation: 16,
-      style: TextStyle(color: HexColor("808080")),
-      underline: Container(
-        height: 2,
-        color: Colors.green,
-      ),
-      onChanged: (String? newValue) {
-        setState(() {
-          dropdownValue = newValue!;
-          widget.returnValue = newValue;
-        });
-      },
-      items: grade.gradeMatrix[1]
-          .toSet()
-          .map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
     );
   }
 }

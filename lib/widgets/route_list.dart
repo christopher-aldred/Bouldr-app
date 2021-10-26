@@ -1,25 +1,34 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
+import 'package:bouldr/utils/hex_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/grade.dart';
 
-class RouteList extends StatelessWidget {
+class RouteList extends StatefulWidget {
   final String venueId;
   final String areaId;
   final String sectionId;
   final db = FirebaseFirestore.instance;
   final Grade grade = Grade();
-  RouteList(this.venueId, this.areaId, this.sectionId);
+  Function(String) callBack;
+  RouteList(this.venueId, this.areaId, this.sectionId, this.callBack);
+
+  @override
+  _RouteListState createState() => _RouteListState();
+}
+
+class _RouteListState extends State<RouteList> {
+  int selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: db
+      stream: widget.db
           .collection('venues')
-          .doc(venueId)
+          .doc(widget.venueId)
           .collection('areas')
-          .doc(areaId)
+          .doc(widget.areaId)
           .collection('sections')
-          .doc(sectionId)
+          .doc(widget.sectionId)
           .collection('routes')
           .orderBy('name')
           .snapshots(),
@@ -29,26 +38,35 @@ class RouteList extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else {
-          return ListView(
-            padding: EdgeInsets.all(0),
-            children: snapshot.data!.docs.map((route) {
-              return Card(
-                child: ListTile(
-                  title: Text(route['name']),
-                  subtitle: Text(
-                      "Grade: " + grade.getGradeByIndex(route['grade'], 'f')),
-                  onTap: () => {
-                    /*
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AreaPage(venueId, area.id)))
-                            */
-                  },
-                ),
-              );
-            }).toList(),
-          );
+          return ListView.builder(
+              padding: EdgeInsets.all(0.0),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (BuildContext context, int index) {
+                var route = snapshot.data!.docs[index];
+                return Card(
+                    color: index == selectedIndex
+                        ? HexColor('e0e0e0')
+                        : Colors.white,
+                    child: ListTile(
+                      title: Text(
+                        route['name'],
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: index == selectedIndex
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: Text("Grade: " +
+                          widget.grade.getGradeByIndex(route['grade'], 'f')),
+                      onTap: () => {
+                        widget.callBack(route.id),
+                        setState(() {
+                          selectedIndex = index;
+                        })
+                      },
+                    ));
+              });
         }
       },
     );

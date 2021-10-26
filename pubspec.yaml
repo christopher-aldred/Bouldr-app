@@ -39,8 +39,10 @@ dependencies:
       url: https://github.com/tobrun/flutter-mapbox-gl.git
   shared_preferences: ^2.0.8
   flutter_painter: ^0.1.0
+  firebase_storage: ^10.0.6
 
 dev_dependencies:
+  test: ^1.17.9
   flutter_test:
     sdk: flutter
 

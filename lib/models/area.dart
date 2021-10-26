@@ -35,14 +35,14 @@ Area _areaFromJson(Map<String, dynamic> json) {
   //Required attributes
   GeoPoint pos = json['location'];
   LatLng latLng = LatLng(pos.latitude, pos.longitude);
-  Area venue = Area(json['name'], latLng);
+  Area area = Area(json['name'], latLng);
 
   //Optional attributes
-  venue.description = json['description'];
-  venue.imagePath = json['image'];
+  area.description = json['description'];
+  area.imagePath = json['image'];
 
   //Return
-  return venue;
+  return area;
 }
 
 Map<String, dynamic> _areaToJson(Area instance) => <String, dynamic>{

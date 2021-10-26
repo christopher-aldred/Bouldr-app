@@ -33,14 +33,14 @@ class Section {
 Section _SectionFromJson(Map<String, dynamic> json) {
   //Required attributes
 
-  Section venue = Section(json['name'], json['image']);
+  Section section = Section(json['name'], json['image']);
 
   //Optional attributes
-  venue.description = json['description'];
-  venue.imagePath = json['image'];
+  section.description = json['description'];
+  section.imagePath = json['image'];
 
   //Return
-  return venue;
+  return section;
 }
 
 Map<String, dynamic> _SectionToJson(Section instance) => <String, dynamic>{

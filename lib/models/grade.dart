@@ -25,22 +25,13 @@ class Grade {
       "V4", // 7
       "V4", // 8
       "V5", // 9
-      "V6", // 10
-      "V7", // 11
-      "V8", // 12
-      "V9", // 13
-      "V10", // 14
-      "V11", // 15
-      "V12", // 16
-      "V13", // 17
-      "V14", // 18
-      "V15", // 19
-      "V16", // 20
-      "V17", // 21
     ]
   ];
 
   String getGradeByIndex(int input, String type) {
+    if (input == -1) {
+      return "Error";
+    }
     if (type == "f") {
       return gradeMatrix[0][input];
     }
@@ -48,6 +39,28 @@ class Grade {
       return gradeMatrix[1][input];
     }
     return "Error";
+  }
+
+  int getIndexByGrade(String input, String type) {
+    int output = -1;
+    List<String> grades = [];
+
+    if (type == "f") {
+      grades = gradeMatrix[0];
+    }
+
+    if (type == "v") {
+      grades = gradeMatrix[1];
+    }
+
+    for (var j = 0; j < grades.length; j++) {
+      if (grades[j] == input) {
+        output = j;
+        break;
+      }
+    }
+
+    return output;
   }
 
   Grade();

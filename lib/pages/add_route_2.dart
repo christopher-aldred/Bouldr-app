@@ -1,16 +1,16 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:bouldr/models/grade.dart';
+import 'package:bouldr/models/route.dart' as route;
 import 'package:bouldr/models/section.dart';
-import 'package:bouldr/widgets/painter_widget.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:bouldr/repository/data_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-
-import 'package:flutter/material.dart';
 import 'package:flutter_painter/flutter_painter.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:async';
 
 class AddRoute2 extends StatefulWidget {
   final String venueId;
@@ -19,6 +19,8 @@ class AddRoute2 extends StatefulWidget {
   final String name;
   final String description;
   final String grade;
+  final Grade gradeconversion = Grade();
+
   AddRoute2(this.venueId, this.areaId, this.sectionId, this.name,
       this.description, this.grade,
       {Key? key})
@@ -30,8 +32,11 @@ class AddRoute2 extends StatefulWidget {
 
 class _AddRoute2State extends State<AddRoute2> {
   Section section = Section('Loading...', '');
+  FirebaseStorage storage = FirebaseStorage.instance;
+  DataRepository dr = DataRepository();
 
   static const Color red = Color(0xFFFF0000);
+  static const Color yellow = Colors.yellow;
   FocusNode textFocusNode = FocusNode();
   late PainterController controller;
   ui.Image? backgroundImage;
@@ -53,6 +58,7 @@ class _AddRoute2State extends State<AddRoute2> {
         setState(() {
           section = Section.fromSnapshot(querySnapshot);
         });
+        initBackground();
       }
     });
 
@@ -61,25 +67,21 @@ class _AddRoute2State extends State<AddRoute2> {
             text: TextSettings(
               focusNode: textFocusNode,
               textStyle: TextStyle(
-                  fontWeight: FontWeight.bold, color: red, fontSize: 18),
+                  fontWeight: FontWeight.bold, color: yellow, fontSize: 18),
             ),
             freeStyle: FreeStyleSettings(
               enabled: false,
-              color: red,
-              strokeWidth: 5,
+              color: yellow,
+              strokeWidth: 3,
             )));
     // Listen to focus events of the text field
     textFocusNode.addListener(onFocus);
     // Initialize background
-    initBackground();
+    toggleFreeStyle();
   }
 
-  /// Fetches image from an [ImageProvider] (in this example, [NetworkImage])
-  /// to use it as a background
   void initBackground() async {
-    // Extension getter (.image) to get [ui.Image] from [ImageProvider]
-    final image = await NetworkImage('https://picsum.photos/1920/1080/').image;
-
+    final image = await NetworkImage(section.imagePath).image;
     setState(() {
       backgroundImage = image;
       controller.background = image.backgroundDrawable;
@@ -96,7 +98,8 @@ class _AddRoute2State extends State<AddRoute2> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text("Flutter Painter Example"),
+        backgroundColor: Colors.green,
+        title: Text("Add route"),
         actions: [
           IconButton(
             icon: Icon(
@@ -107,30 +110,41 @@ class _AddRoute2State extends State<AddRoute2> {
           IconButton(
             icon: Icon(
               Icons.gesture,
-              color: controller.freeStyleSettings.enabled
-                  ? Theme.of(context).accentColor
-                  : null,
+              color: controller.freeStyleSettings.enabled ? Colors.black : null,
             ),
             onPressed: toggleFreeStyle,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.zoom_in,
+              color: controller.freeStyleSettings.enabled != true
+                  ? Colors.black
+                  : null,
+            ),
+            onPressed: zoomScreen,
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.image,
-        ),
-        onPressed: renderAndDisplayImage,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.green,
+        onPressed: renderAndUpload,
+        label: Text('Save'),
+        icon: Icon(Icons.save),
       ),
       body: Column(
         children: [
           if (backgroundImage != null)
             // Enforces constraints
             AspectRatio(
-              aspectRatio: backgroundImage!.width / backgroundImage!.height,
-              child: FlutterPainter(
-                controller: controller,
-              ),
-            ),
+                aspectRatio: backgroundImage!.width / backgroundImage!.height,
+                child: InteractiveViewer(
+                  panEnabled: false, // Set it to false
+                  minScale: 1,
+                  maxScale: 4,
+                  child: FlutterPainter(
+                    controller: controller,
+                  ),
+                )),
           if (controller.freeStyleSettings.enabled) ...[
             // Control free style stroke width
             Slider.adaptive(
@@ -188,6 +202,11 @@ class _AddRoute2State extends State<AddRoute2> {
     controller.addText();
   }
 
+  void zoomScreen() {
+    if (controller.freeStyleSettings.enabled) toggleFreeStyle();
+    //controller.addText();
+  }
+
   void setFreeStyleStrokeWidth(double value) {
     // Set state is just to update the current UI, the [FlutterPainter] UI updates without it
     setState(() {
@@ -224,28 +243,60 @@ class _AddRoute2State extends State<AddRoute2> {
     });
   }
 
-  void renderAndDisplayImage() {
-    if (backgroundImage == null) return;
+  void uploadImage(route.Route newRoute) async {
     final backgroundImageSize = Size(
         backgroundImage!.width.toDouble(), backgroundImage!.height.toDouble());
 
-    // Render the image
-    // Returns a [ui.Image] object, convert to to byte data and then to Uint8List
     final imageFuture = controller
         .renderImage(backgroundImageSize)
         .then<Uint8List?>((ui.Image image) => image.pngBytes);
 
-    // From here, you can write the PNG image data a file or do whatever you want with it
-    // For example:
-    // ```dart
-    // final file = File('${(await getTemporaryDirectory()).path}/img.png');
-    // await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-    // ```
-    // I am going to display it using Image.memory
+    String filePath = "/images/" +
+        widget.venueId +
+        "/" +
+        widget.sectionId +
+        "/" +
+        newRoute.referenceId.toString() +
+        ".png";
 
-    // Show a dialog with the image
-    showDialog(
-        context: context,
-        builder: (context) => RenderedImageDialog(imageFuture: imageFuture));
+    imageFuture.then((uint8List) async {
+      try {
+        //final ref = storage.ref(filePath);
+        //ref.putData(uint8List!);
+
+        var storageimage = FirebaseStorage.instance.ref().child(filePath);
+        UploadTask task1 = storageimage.putData(uint8List!);
+
+        Future<String> url = (await task1).ref.getDownloadURL();
+        url.then((value) => {
+              {newRoute.imagePath = value},
+              dr.updateRoute(
+                  widget.venueId, widget.areaId, widget.sectionId, newRoute)
+            });
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        //Navigator.of(context).pop();
+
+      } on FirebaseException catch (error) {
+        print(error);
+      }
+    });
+  }
+
+  Future<void> renderAndUpload() async {
+    if (backgroundImage == null) return;
+
+    route.Route newRoute = route.Route(
+      widget.name,
+      widget.gradeconversion.getIndexByGrade(widget.grade, "v"),
+    );
+
+    Future<DocumentReference> response =
+        dr.addRoute(widget.venueId, widget.areaId, widget.sectionId, newRoute);
+
+    response.then((value) => {
+          newRoute.referenceId = value.id,
+          uploadImage(newRoute),
+        });
   }
 }
