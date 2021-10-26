@@ -1,6 +1,6 @@
-import 'package:bouldr/pages/home_map.dart';
+import 'package:bouldr/pages/home_page.dart';
 import 'package:flutter/material.dart';
-import 'pages/home_map.dart';
+import 'pages/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
@@ -17,11 +17,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Bouldr',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
       //home: const MyHomePage(title: 'Bouldr'),
-      home: HomeMap(context),
+      home: HomePage(context),
     );
   }
 }

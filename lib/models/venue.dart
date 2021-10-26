@@ -1,13 +1,21 @@
+import 'package:bouldr/models/verification.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'area.dart';
+
 class Venue {
+  //Required
   String name;
-  String? description;
   LatLng location;
-  List? areas; //to-do hold object areas
   int venueType; // 0=Crag, 1=Gym
+
+  //Optional
   String? referenceId;
+  String? description;
+  Verification? verification;
+  String? imagePath;
+  List<Area>? areas;
 
   Venue(this.name, this.location, this.venueType);
 
@@ -26,9 +34,17 @@ class Venue {
 }
 
 Venue _venueFromJson(Map<String, dynamic> json) {
+  //Required attributes
   GeoPoint pos = json['location'];
   LatLng latLng = LatLng(pos.latitude, pos.longitude);
-  return Venue(json['name'], latLng, json['venueType']);
+  Venue venue = Venue(json['name'], latLng, json['venueType']);
+
+  //Optional attributes
+  venue.description = json['description'];
+  venue.imagePath = json['image'];
+
+  //Return
+  return venue;
 }
 
 Map<String, dynamic> _venueToJson(Venue instance) => <String, dynamic>{
