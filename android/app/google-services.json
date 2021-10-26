@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "682255555616",
+    "project_id": "bouldr",
+    "storage_bucket": "bouldr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682255555616:android:ca7d64f02dd6a572afb045",
+        "android_client_info": {
+          "package_name": "com.credible.bouldr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682255555616-1qascgllj5b65g0aiu4flrq1g46o30h1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.credible.bouldr",
+            "certificate_hash": "8c9ec5153ff515ee53b4121c0c70faa5d236f5a8"
+          }
+        },
+        {
+          "client_id": "682255555616-6ju9jk43ntlcg1uqts13diavok3u87t8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkLH0ccPTiRWNce6OHp33QhcUuRU4gtNs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682255555616-6ju9jk43ntlcg1uqts13diavok3u87t8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
