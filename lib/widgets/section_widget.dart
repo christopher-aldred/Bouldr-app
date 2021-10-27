@@ -1,13 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:bouldr/models/route.dart';
 import 'package:bouldr/models/section.dart';
 import 'package:bouldr/pages/add_route_1.dart';
 import 'package:bouldr/widgets/route_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:bouldr/models/route.dart' as customRoute;
+import 'package:bouldr/models/route.dart' as custom_route;
 
 class SectionWidget extends StatefulWidget {
   final String venueId;
@@ -23,7 +22,7 @@ class SectionWidget extends StatefulWidget {
 class _SectionWidgetState extends State<SectionWidget>
     with AutomaticKeepAliveClientMixin {
   Section section = Section('Loading...', '');
-  List<customRoute.Route> routes = [];
+  List<custom_route.Route> routes = [];
   String selectedRouteImageUrl = "";
 
   @override
@@ -59,7 +58,7 @@ class _SectionWidgetState extends State<SectionWidget>
         .then((querySnapshot) => {
               querySnapshot.docs.forEach((element) {
                 setState(() {
-                  routes.add(customRoute.Route.fromSnapshot(element));
+                  routes.add(custom_route.Route.fromSnapshot(element));
                 });
               }),
               {selectedRouteImageUrl = routes[0].imagePath!}
@@ -83,8 +82,8 @@ class _SectionWidgetState extends State<SectionWidget>
   }
 
   void selectRoute(String id) {
-    Set<customRoute.Route> mSet = routes.toSet();
-    customRoute.Route filtered =
+    Set<custom_route.Route> mSet = routes.toSet();
+    custom_route.Route filtered =
         mSet.firstWhere((item) => item.referenceId.toString() == id.toString());
     setState(() {
       selectedRouteImageUrl = filtered.imagePath.toString();
@@ -115,9 +114,9 @@ class _SectionWidgetState extends State<SectionWidget>
   /*
 
   void selectRoute(String id) {
-    Set<customRoute.Route> routesSet = routes.toSet();
+    Set<custom_route.Route> routesSet = routes.toSet();
     //Set filteredSet = routesSet.where((item) => item.a  == "someString1").length > 0;
-    customRoute.Route route =
+    custom_route.Route route =
         routesSet.firstWhere((item) => item.referenceId == id);
     //return filtered.first.imagePath;
     selectedRouteImageUrl = route.imagePath!;
@@ -190,13 +189,7 @@ class _SectionWidgetState extends State<SectionWidget>
                       child: CircularProgressIndicator(color: Colors.grey),
                     ),
                   ),
-                  errorWidget: (context, url, error) => SizedBox(
-                    height: 100,
-                    width: 100,
-                    child: Center(
-                      child: CircularProgressIndicator(color: Colors.grey),
-                    ),
-                  ),
+                  errorWidget: (context, url, error) => Container(),
                 ),
               ]),
             ),

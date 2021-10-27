@@ -74,7 +74,27 @@ class _HomePageState extends State<HomePage> {
                   });
                   return Scaffold(
                     appBar: AppBar(
-                        centerTitle: true,
+                        actions: <Widget>[
+                          IconButton(
+                            icon: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              // do something
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.settings,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              // do something
+                            },
+                          ),
+                        ],
+                        centerTitle: false,
                         titleTextStyle: TextStyle(
                             fontSize: 32,
                             fontFamily: 'Accent',

@@ -33,13 +33,13 @@ dependencies:
   cloud_firestore: ^2.5.3
   location: ^4.0.0
   cached_network_image: ^3.1.0
-  cupertino_icons: ^1.0.2
   mapbox_gl:
     git:
       url: https://github.com/tobrun/flutter-mapbox-gl.git
   shared_preferences: ^2.0.8
   flutter_painter: ^0.1.0
   firebase_storage: ^10.0.6
+  fluttertoast: ^8.0.7
 
 dev_dependencies:
   test: ^1.17.9

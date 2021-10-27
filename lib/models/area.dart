@@ -7,15 +7,15 @@ class Area {
   //Required
   String name;
   LatLng location;
+  num routeCount;
 
   //Optional
   String? referenceId;
   String? description;
   Verification? verification;
-  String? imagePath;
   List<Section>? sections;
 
-  Area(this.name, this.location);
+  Area(this.name, this.location, this.routeCount);
 
   factory Area.fromSnapshot(DocumentSnapshot snapshot) {
     final newArea = Area.fromJson(snapshot.data() as Map<String, dynamic>);
@@ -35,11 +35,10 @@ Area _areaFromJson(Map<String, dynamic> json) {
   //Required attributes
   GeoPoint pos = json['location'];
   LatLng latLng = LatLng(pos.latitude, pos.longitude);
-  Area area = Area(json['name'], latLng);
+  Area area = Area(json['name'], latLng, json['routeCount']);
 
   //Optional attributes
   area.description = json['description'];
-  area.imagePath = json['image'];
 
   //Return
   return area;
@@ -49,4 +48,5 @@ Map<String, dynamic> _areaToJson(Area instance) => <String, dynamic>{
       'name': instance.name,
       'location':
           GeoPoint(instance.location.latitude, instance.location.longitude),
+      'routeCount': instance.routeCount,
     };

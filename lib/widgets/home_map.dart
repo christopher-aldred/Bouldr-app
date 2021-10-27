@@ -152,7 +152,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
       ),
       Container(
         alignment: Alignment.topCenter,
-        padding: new EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
+        padding: EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
         child: Card(
           child: TextField(
             controller: textController,

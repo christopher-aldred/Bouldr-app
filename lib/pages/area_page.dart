@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:bouldr/models/area.dart';
+import 'package:bouldr/pages/add_section.dart';
 import 'package:bouldr/widgets/section_page_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +18,17 @@ class AreaPage extends StatefulWidget {
 }
 
 class _AreaPageState extends State<AreaPage> {
-  Area area = Area("Loading...", LatLng(90, 90));
+  Area area = Area("Loading...", LatLng(90, 90), 0);
   DataRepository dataRepository = DataRepository();
 
   void handleActions(String value) {
     switch (value) {
-      case 'Logout':
+      case 'Add section':
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    AddSection(widget.venueId, widget.areaId)));
         break;
       case 'Settings':
         break;
@@ -55,17 +61,6 @@ class _AreaPageState extends State<AreaPage> {
           appBar: AppBar(
             title: Text(area.name),
             actions: <Widget>[
-              /*
-            IconButton(
-              icon: Icon(
-                Icons.filter_list_alt,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                // do something
-              },
-            ),
-            */
               PopupMenuButton<String>(
                 onSelected: (handleActions),
                 itemBuilder: (BuildContext context) {

@@ -1,12 +1,10 @@
+import 'package:bouldr/models/area.dart';
 import 'package:bouldr/models/route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/venue.dart';
 
 class DataRepository {
-  final CollectionReference venues =
-      FirebaseFirestore.instance.collection('venues');
-
   Future<DocumentReference> addRoute(
       String venueId, String areaId, String sectionId, Route route) {
     final CollectionReference routes = FirebaseFirestore.instance
@@ -33,15 +31,43 @@ class DataRepository {
     await routes.doc(route.referenceId).update(route.toJson());
   }
 
+  void updateArea(String venueId, Area area) async {
+    final CollectionReference areas = FirebaseFirestore.instance
+        .collection('venues')
+        .doc(venueId)
+        .collection('areas');
+    await areas.doc(area.referenceId).update(area.toJson());
+  }
+
+  void incrementAreaRouteCount(String venueId, String areaId) async {
+    FirebaseFirestore.instance
+        .collection('venues')
+        .doc(venueId)
+        .collection('areas')
+        .doc(areaId)
+        .get()
+        .then((querySnapshot) {
+      Area area = Area.fromSnapshot(querySnapshot);
+      area.routeCount += 1;
+      updateArea(venueId, area);
+    });
+  }
+
   Future<DocumentReference> addVenue(Venue venue) {
+    final CollectionReference venues =
+        FirebaseFirestore.instance.collection('venues');
     return venues.add(venue.toJson());
   }
 
   void updateVenue(Venue venue) async {
+    final CollectionReference venues =
+        FirebaseFirestore.instance.collection('venues');
     await venues.doc(venue.referenceId).update(venue.toJson());
   }
 
   void deleteVenue(Venue venue) async {
+    final CollectionReference venues =
+        FirebaseFirestore.instance.collection('venues');
     await venues.doc(venue.referenceId).delete();
   }
 }

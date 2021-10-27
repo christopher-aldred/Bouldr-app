@@ -25,10 +25,11 @@ class AreaList extends StatelessWidget {
         } else {
           return ListView(
             children: snapshot.data!.docs.map((area) {
+              //print(snapshot.data!.docs.length);
               return Card(
                 child: ListTile(
                   title: Text(area['name']),
-                  subtitle: Text('0 routes'),
+                  subtitle: Text(area['routeCount'].toString() + ' routes'),
                   onTap: () => {
                     Navigator.push(
                         context,

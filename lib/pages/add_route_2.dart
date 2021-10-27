@@ -271,7 +271,8 @@ class _AddRoute2State extends State<AddRoute2> {
         url.then((value) => {
               {newRoute.imagePath = value},
               dr.updateRoute(
-                  widget.venueId, widget.areaId, widget.sectionId, newRoute)
+                  widget.venueId, widget.areaId, widget.sectionId, newRoute),
+              dr.incrementAreaRouteCount(widget.venueId, widget.areaId)
             });
         Navigator.of(context).pop();
         Navigator.of(context).pop();
