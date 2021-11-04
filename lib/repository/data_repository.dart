@@ -1,5 +1,6 @@
 import 'package:bouldr/models/area.dart';
 import 'package:bouldr/models/route.dart';
+import 'package:bouldr/models/section.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/venue.dart';
@@ -29,6 +30,27 @@ class DataRepository {
         .doc(sectionId)
         .collection('routes');
     await routes.doc(route.referenceId).update(route.toJson());
+  }
+
+  Future<DocumentReference> addSection(
+      String venueId, String areaId, Section section) {
+    final CollectionReference sections = FirebaseFirestore.instance
+        .collection('venues')
+        .doc(venueId)
+        .collection('areas')
+        .doc(areaId)
+        .collection('sections');
+    return sections.add(section.toJson());
+  }
+
+  void updateSection(String venueId, String areaId, Section section) async {
+    final CollectionReference sections = FirebaseFirestore.instance
+        .collection('venues')
+        .doc(venueId)
+        .collection('areas')
+        .doc(areaId)
+        .collection('sections');
+    await sections.doc(section.referenceId).update(section.toJson());
   }
 
   void updateArea(String venueId, Area area) async {

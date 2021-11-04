@@ -1,8 +1,15 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:io';
+
 import 'package:bouldr/models/grade.dart';
+import 'package:bouldr/models/section.dart';
+import 'package:bouldr/repository/data_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddSection extends StatefulWidget {
   final String venueId;
@@ -18,7 +25,104 @@ class _AddSectionState extends State<AddSection> {
   final TextEditingController textControllerName = TextEditingController();
   final TextEditingController textControllerDescription =
       TextEditingController();
-  String dropdownValue = 'Select grade';
+  File? imageFile;
+  DataRepository dr = DataRepository();
+
+  void _showMaterialDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Select image'),
+            content: null,
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    _getFromGallery();
+                    Navigator.pop(context);
+                  },
+                  child: Text('Gallery')),
+              TextButton(
+                onPressed: () {
+                  _getFromCamera();
+                  Navigator.pop(context);
+                },
+                child: Text('Camera'),
+              )
+            ],
+          );
+        });
+  }
+
+  /// Get from gallery
+  _getFromGallery() async {
+    PickedFile? pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  /// Get from Camera
+  _getFromCamera() async {
+    PickedFile? pickedFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  void uploadImage(Section newSection) async {
+    final imageFuture = imageFile!.readAsBytesSync();
+
+    String filePath = "/images/" +
+        widget.venueId +
+        "/" +
+        newSection.referenceId.toString() +
+        "/base_image.png";
+
+    try {
+      //final ref = storage.ref(filePath);
+      //ref.putData(uint8List!);
+
+      var storageimage = FirebaseStorage.instance.ref().child(filePath);
+      UploadTask task1 = storageimage.putData(imageFuture);
+
+      Future<String> url = (await task1).ref.getDownloadURL();
+      url.then((value) => {
+            {newSection.imagePath = value},
+            dr.updateSection(widget.venueId, widget.areaId, newSection)
+          });
+      Navigator.of(context).pop();
+    } on FirebaseException catch (error) {
+      print(error);
+    }
+  }
+
+  Future<void> save() async {
+    if (imageFile == null) return;
+
+    Section newSection = Section(textControllerName.text, '');
+
+    Future<DocumentReference> response =
+        dr.addSection(widget.venueId, widget.areaId, newSection);
+
+    response.then((value) => {
+          newSection.referenceId = value.id,
+          uploadImage(newSection),
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,16 +169,26 @@ class _AddSectionState extends State<AddSection> {
                   ),
                   onSubmitted: (text) => {}),
             ),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: SizedBox(
+                  width: double.infinity, // <-- match_parent
+                  child: ElevatedButton(
+                    child: Text('Select image'),
+                    onPressed: _showMaterialDialog,
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        textStyle: TextStyle(fontSize: 20)),
+                  )),
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: Colors.green,
           onPressed: () => {
-            if (textControllerName.text != "" &&
-                dropdownValue.toLowerCase() != "select grade")
-              {
-                //to-do
-              }
+            if (textControllerName.text != "" && imageFile != null)
+              {save()}
             else
               {
                 Fluttertoast.showToast(

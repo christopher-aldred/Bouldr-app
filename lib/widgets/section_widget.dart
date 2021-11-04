@@ -63,22 +63,6 @@ class _SectionWidgetState extends State<SectionWidget>
               }),
               {selectedRouteImageUrl = routes[0].imagePath!}
             });
-
-/*
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .doc(widget.areaId)
-        .collection('sections')
-        .doc(widget.sectionId)
-        .collection('routes')
-        .orderBy('name')
-        .limit(1)
-        .get()
-        .then((querySnapshot) =>
-            {selectedRouteImageUrl = querySnapshot.docs[0]['image']});
-*/
   }
 
   void selectRoute(String id) {
@@ -89,40 +73,6 @@ class _SectionWidgetState extends State<SectionWidget>
       selectedRouteImageUrl = filtered.imagePath.toString();
     });
   }
-/*
-  void selectRoute(String id) {
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .doc(widget.areaId)
-        .collection('sections')
-        .doc(widget.sectionId)
-        .collection('routes')
-        .doc(id)
-        .get()
-        .then((querySnapshot) {
-      if (querySnapshot.exists) {
-        setState(() {
-          selectedRouteImageUrl = querySnapshot['image'];
-        });
-      }
-    });
-  }
-  */
-
-  /*
-
-  void selectRoute(String id) {
-    Set<custom_route.Route> routesSet = routes.toSet();
-    //Set filteredSet = routesSet.where((item) => item.a  == "someString1").length > 0;
-    custom_route.Route route =
-        routesSet.firstWhere((item) => item.referenceId == id);
-    //return filtered.first.imagePath;
-    selectedRouteImageUrl = route.imagePath!;
-  }
-
-  */
 
   @override
   Widget build(BuildContext context) {

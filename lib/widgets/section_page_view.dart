@@ -3,6 +3,7 @@
 import 'package:bouldr/widgets/section_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 class SectionPageView extends StatelessWidget {
   final String venueId;
@@ -26,7 +27,7 @@ class SectionPageView extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else {
-          return PageView.builder(
+          return PreloadPageView.builder(
             itemBuilder: (context, position) {
               return Column(children: [
                 Padding(
