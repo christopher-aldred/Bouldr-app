@@ -107,7 +107,7 @@ class _SectionWidgetState extends State<SectionWidget>
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: imageProvider,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -120,7 +120,7 @@ class _SectionWidgetState extends State<SectionWidget>
                   ),
                   errorWidget: (context, url, error) => Image(
                       image: AssetImage('assets/images/missing.png'),
-                      fit: BoxFit.contain),
+                      fit: BoxFit.cover),
                 ),
                 CachedNetworkImage(
                   imageUrl: selectedRouteImageUrl,
@@ -128,7 +128,7 @@ class _SectionWidgetState extends State<SectionWidget>
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: imageProvider,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),

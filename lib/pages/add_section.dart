@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:bouldr/models/grade.dart';
 import 'package:bouldr/models/section.dart';
@@ -10,6 +11,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
 
 class AddSection extends StatefulWidget {
   final String venueId;
@@ -86,6 +88,11 @@ class _AddSectionState extends State<AddSection> {
   void uploadImage(Section newSection) async {
     final imageFuture = imageFile!.readAsBytesSync();
 
+    img.Image? imageTemp = img.decodeImage(imageFuture);
+    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 2000);
+    final uploadImage =
+        Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
+
     String filePath = "/images/" +
         widget.venueId +
         "/" +
@@ -93,11 +100,8 @@ class _AddSectionState extends State<AddSection> {
         "/base_image.png";
 
     try {
-      //final ref = storage.ref(filePath);
-      //ref.putData(uint8List!);
-
       var storageimage = FirebaseStorage.instance.ref().child(filePath);
-      UploadTask task1 = storageimage.putData(imageFuture);
+      UploadTask task1 = storageimage.putData(uploadImage);
 
       Future<String> url = (await task1).ref.getDownloadURL();
       url.then((value) => {
