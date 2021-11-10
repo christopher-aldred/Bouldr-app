@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../repository/data_repository.dart';
 import '../models/venue.dart';
 import '../widgets/photo_gradient.dart';
+import 'add_area.dart';
 
 class VenuePage extends StatefulWidget {
   final String venueId;
@@ -18,12 +19,14 @@ class VenuePage extends StatefulWidget {
 }
 
 class _VenuePageState extends State<VenuePage> {
-  Venue venue = Venue("Loading...", LatLng(90, 90), 0);
+  Venue venue = Venue("Loading...", LatLng(999, 999), 0);
   DataRepository dataRepository = DataRepository();
 
   void handleActions(String value) {
     switch (value) {
-      case 'Logout':
+      case 'Add area':
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AddArea(venue)));
         break;
       case 'Settings':
         break;

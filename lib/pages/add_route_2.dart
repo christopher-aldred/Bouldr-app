@@ -145,34 +145,33 @@ class _AddRoute2State extends State<AddRoute2> {
                     controller: controller,
                   ),
                 )),
-          if (controller.freeStyleSettings.enabled) ...[
-            Row(children: <Widget>[
-              Expanded(
-                child: Container(
-                    margin: const EdgeInsets.only(left: 10.0, right: 20.0),
-                    child: Divider(
-                      color: Colors.black,
-                      height: 36,
-                    )),
-              ),
-              Text("Line width", style: TextStyle(fontSize: 20)),
-              Expanded(
-                child: Container(
-                    margin: const EdgeInsets.only(left: 20.0, right: 10.0),
-                    child: Divider(
-                      color: Colors.black,
-                      height: 36,
-                    )),
-              ),
-            ]),
-            // Control free style stroke width
-            Slider.adaptive(
-                min: 2,
-                max: 15,
-                value: controller.freeStyleSettings.strokeWidth,
-                onChanged: setFreeStyleStrokeWidth),
+          Row(children: <Widget>[
+            Expanded(
+              child: Container(
+                  margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                  child: Divider(
+                    color: Colors.black,
+                    height: 36,
+                  )),
+            ),
+            Text("Line width", style: TextStyle(fontSize: 20)),
+            Expanded(
+              child: Container(
+                  margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                  child: Divider(
+                    color: Colors.black,
+                    height: 36,
+                  )),
+            ),
+          ]),
+          // Control free style stroke width
+          Slider.adaptive(
+              min: 2,
+              max: 15,
+              value: controller.freeStyleSettings.strokeWidth,
+              onChanged: setFreeStyleStrokeWidth),
 
-            /*
+          /*
             // Control free style color hue
             Slider.adaptive(
                 min: 0,
@@ -183,81 +182,80 @@ class _AddRoute2State extends State<AddRoute2> {
                 onChanged: setFreeStyleColor),
                 */
 
-            Row(children: <Widget>[
-              Expanded(
-                child: Container(
-                    margin: const EdgeInsets.only(left: 10.0, right: 20.0),
-                    child: Divider(
-                      color: Colors.black,
-                      height: 36,
-                    )),
-              ),
-              Text("Holds", style: TextStyle(fontSize: 20)),
-              Expanded(
-                child: Container(
-                    margin: const EdgeInsets.only(left: 20.0, right: 10.0),
-                    child: Divider(
-                      color: Colors.black,
-                      height: 36,
-                    )),
-              ),
-            ]),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-              Padding(
-                  padding: EdgeInsets.all(5),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        setFreeStyleColor(195);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
+          Row(children: <Widget>[
+            Expanded(
+              child: Container(
+                  margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                  child: Divider(
+                    color: Colors.black,
+                    height: 36,
+                  )),
+            ),
+            Text("Holds", style: TextStyle(fontSize: 20)),
+            Expanded(
+              child: Container(
+                  margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                  child: Divider(
+                    color: Colors.black,
+                    height: 36,
+                  )),
+            ),
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+            Padding(
+                padding: EdgeInsets.all(5),
+                child: ElevatedButton(
+                    onPressed: () {
+                      setFreeStyleColor(195);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
-                      child: Text('Start'))),
-              Padding(
-                  padding: EdgeInsets.all(5),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        setFreeStyleColor(60);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.yellow,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
+                    ),
+                    child: Text('Start'))),
+            Padding(
+                padding: EdgeInsets.all(5),
+                child: ElevatedButton(
+                    onPressed: () {
+                      setFreeStyleColor(60);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.yellow,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
-                      child:
-                          Text('Hand', style: TextStyle(color: Colors.black)))),
-              Padding(
-                  padding: EdgeInsets.all(5),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        setFreeStyleColor(345);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
+                    ),
+                    child:
+                        Text('Hand', style: TextStyle(color: Colors.black)))),
+            Padding(
+                padding: EdgeInsets.all(5),
+                child: ElevatedButton(
+                    onPressed: () {
+                      setFreeStyleColor(345);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
-                      child: Text('Foot'))),
-              Padding(
-                  padding: EdgeInsets.all(5),
-                  child: ElevatedButton(
-                      onPressed: () {
-                        setFreeStyleColor(105);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
+                    ),
+                    child: Text('Foot'))),
+            Padding(
+                padding: EdgeInsets.all(5),
+                child: ElevatedButton(
+                    onPressed: () {
+                      setFreeStyleColor(105);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
-                      child: Text('Finish'))),
-            ]),
-          ],
+                    ),
+                    child: Text('Finish'))),
+          ]),
           if (textFocusNode.hasFocus) ...[
             // Control text font size
             Slider.adaptive(

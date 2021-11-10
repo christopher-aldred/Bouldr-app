@@ -18,7 +18,7 @@ class AreaPage extends StatefulWidget {
 }
 
 class _AreaPageState extends State<AreaPage> {
-  Area area = Area("Loading...", LatLng(90, 90), 0);
+  Area area = Area("Loading...", LatLng(999, 999), 0);
   DataRepository dataRepository = DataRepository();
 
   void handleActions(String value) {

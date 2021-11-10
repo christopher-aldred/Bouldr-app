@@ -56,6 +56,7 @@ class _AddSectionState extends State<AddSection> {
         });
   }
 
+  /*
   /// Get from gallery
   _getFromGallery() async {
     PickedFile? pickedFile = await ImagePicker().getImage(
@@ -70,17 +71,27 @@ class _AddSectionState extends State<AddSection> {
       });
     }
   }
+  */
+
+  _getFromGallery() async {
+    var image = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, imageQuality: 25);
+
+    if (image != null) {
+      setState(() {
+        imageFile = File(image.path);
+      });
+    }
+  }
 
   /// Get from Camera
   _getFromCamera() async {
-    PickedFile? pickedFile = await ImagePicker().getImage(
-      source: ImageSource.camera,
-      maxWidth: 1800,
-      maxHeight: 1800,
-    );
-    if (pickedFile != null) {
+    var image = await ImagePicker()
+        .pickImage(source: ImageSource.camera, imageQuality: 25);
+
+    if (image != null) {
       setState(() {
-        imageFile = File(pickedFile.path);
+        imageFile = File(image.path);
       });
     }
   }
@@ -89,7 +100,7 @@ class _AddSectionState extends State<AddSection> {
     final imageFuture = imageFile!.readAsBytesSync();
 
     img.Image? imageTemp = img.decodeImage(imageFuture);
-    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 2000);
+    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 1000);
     final uploadImage =
         Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
 
@@ -154,6 +165,7 @@ class _AddSectionState extends State<AddSection> {
                   autofocus: true,
                   controller: textControllerName,
                   textAlignVertical: TextAlignVertical.center,
+                  textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     hintText: 'Name',
                     border: const OutlineInputBorder(
@@ -166,6 +178,7 @@ class _AddSectionState extends State<AddSection> {
               child: TextField(
                   controller: textControllerDescription,
                   textAlignVertical: TextAlignVertical.center,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     hintText: 'Description',
                     border: const OutlineInputBorder(

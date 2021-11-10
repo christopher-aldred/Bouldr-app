@@ -53,6 +53,14 @@ class DataRepository {
     await sections.doc(section.referenceId).update(section.toJson());
   }
 
+  Future<DocumentReference> addArea(String venueId, Area area) {
+    final CollectionReference sections = FirebaseFirestore.instance
+        .collection('venues')
+        .doc(venueId)
+        .collection('areas');
+    return sections.add(area.toJson());
+  }
+
   void updateArea(String venueId, Area area) async {
     final CollectionReference areas = FirebaseFirestore.instance
         .collection('venues')

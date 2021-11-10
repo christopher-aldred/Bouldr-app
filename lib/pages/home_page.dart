@@ -25,6 +25,15 @@ class _HomePageState extends State<HomePage> {
     return Future.value(defaultHomeTab);
   }
 
+  void handleActions(String value) {
+    switch (value) {
+      case 'Add section':
+        break;
+      case 'Settings':
+        break;
+    }
+  }
+
   TabBar get _tabBar => TabBar(
         tabs: [
           Tab(
@@ -84,13 +93,16 @@ class _HomePageState extends State<HomePage> {
                               // do something
                             },
                           ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.settings,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              // do something
+                          PopupMenuButton<String>(
+                            onSelected: (handleActions),
+                            itemBuilder: (BuildContext context) {
+                              return {'Add venue', 'Delete venue', 'Settings'}
+                                  .map((String choice) {
+                                return PopupMenuItem<String>(
+                                  value: choice,
+                                  child: Text(choice),
+                                );
+                              }).toList();
                             },
                           ),
                         ],

@@ -1,35 +1,55 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
+import 'package:bouldr/models/area.dart';
 import 'package:bouldr/models/grade.dart';
-import 'package:bouldr/pages/add_route_2.dart';
-import 'package:bouldr/utils/hex_color.dart';
+import 'package:bouldr/models/venue.dart';
+import 'package:bouldr/widgets/map_picker.dart';
+import 'package:bouldr/repository/data_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class AddRoute1 extends StatefulWidget {
-  final String venueId;
-  final String areaId;
-  final String sectionId;
-  const AddRoute1(this.venueId, this.areaId, this.sectionId, {Key? key})
-      : super(key: key);
+class AddArea extends StatefulWidget {
+  final Venue venue;
+  const AddArea(this.venue, {Key? key}) : super(key: key);
 
   @override
-  _AddRoute1State createState() => _AddRoute1State();
+  _AddAreaState createState() => _AddAreaState();
 }
 
-class _AddRoute1State extends State<AddRoute1> {
+class _AddAreaState extends State<AddArea> {
   Grade grade = Grade();
   final TextEditingController textControllerName = TextEditingController();
   final TextEditingController textControllerDescription =
       TextEditingController();
-  String dropdownValue = 'Select grade';
+  LatLng? location;
+  DataRepository dr = DataRepository();
+
+  Future<void> save() async {
+    if (location == null) return;
+
+    Area newArea = Area(
+        textControllerName.text, location!, 0, textControllerDescription.text);
+
+    dr.addArea(widget.venue.referenceId.toString(), newArea);
+
+    Navigator.pop(context);
+
+    //Future<DocumentReference> response = dr.AddArea(widget.venueId, widget.areaId, newSection);
+
+    /*
+    response.then((value) => {
+          newSection.referenceId = value.id,
+          uploadImage(newSection),
+        });
+    */
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Add route'),
+          title: Text('Add area'),
           actions: <Widget>[],
           backgroundColor: Colors.green,
           leading: InkWell(
@@ -49,8 +69,8 @@ class _AddRoute1State extends State<AddRoute1> {
               child: TextField(
                   autofocus: true,
                   controller: textControllerName,
-                  textCapitalization: TextCapitalization.words,
                   textAlignVertical: TextAlignVertical.center,
+                  textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     hintText: 'Name',
                     border: const OutlineInputBorder(
@@ -73,61 +93,43 @@ class _AddRoute1State extends State<AddRoute1> {
             ),
             Padding(
               padding: EdgeInsets.all(10),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: HexColor("808080")),
-                underline: Container(
-                  height: 2,
-                  color: Colors.green,
-                ),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: grade.gradeMatrix[1]
-                    .toSet()
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
+              child: SizedBox(
+                  width: double.infinity, // <-- match_parent
+                  child: ElevatedButton(
+                    child: Text('Set location'),
+                    onPressed: () => {
+                      FocusScope.of(context).unfocus(),
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MapPicker(
+                                        widget.venue.location.latitude,
+                                        widget.venue.location.longitude,
+                                      )))
+                          .then((value) => {location = value as LatLng})
+                    },
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        textStyle: TextStyle(fontSize: 20)),
+                  )),
             ),
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: Colors.green,
           onPressed: () => {
-            if (textControllerName.text != "" &&
-                dropdownValue.toLowerCase() != "select grade")
-              {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddRoute2(
-                            widget.venueId,
-                            widget.areaId,
-                            widget.sectionId,
-                            textControllerName.text.toString(),
-                            textControllerDescription.text.toString(),
-                            dropdownValue))),
-                FocusScope.of(context).unfocus()
-              }
+            if (textControllerName.text != "" && location != null)
+              {save()}
             else
               {
                 Fluttertoast.showToast(
-                  msg: "Must enter name & grade",
+                  msg: "Must input name & location",
                 )
               }
           },
-          label: Text('Next'),
-          icon: Icon(Icons.check),
+          label: Text('Save'),
+          icon: Icon(Icons.save),
         ),
       ),
     );

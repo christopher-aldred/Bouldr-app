@@ -15,7 +15,7 @@ class Area {
   Verification? verification;
   List<Section>? sections;
 
-  Area(this.name, this.location, this.routeCount);
+  Area(this.name, this.location, this.routeCount, [this.description]);
 
   factory Area.fromSnapshot(DocumentSnapshot snapshot) {
     final newArea = Area.fromJson(snapshot.data() as Map<String, dynamic>);
@@ -49,4 +49,5 @@ Map<String, dynamic> _areaToJson(Area instance) => <String, dynamic>{
       'location':
           GeoPoint(instance.location.latitude, instance.location.longitude),
       'routeCount': instance.routeCount,
+      'description': instance.description,
     };
