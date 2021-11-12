@@ -79,7 +79,7 @@ class _VenueMapState extends State<VenueMap> {
             northeast: LatLng(maxLat, maxLong),
           ),
         ));
-        controller!.animateCamera(CameraUpdate.zoomBy(-2.0));
+        controller!.animateCamera(CameraUpdate.zoomBy(-3.0));
       }
     });
   }
@@ -108,6 +108,7 @@ class _VenueMapState extends State<VenueMap> {
         appBar: AppBar(
           title: Text(widget.venue.name + " map"),
           actions: <Widget>[
+            /*
             IconButton(
               icon: Icon(
                 Icons.filter_list_alt,
@@ -115,10 +116,13 @@ class _VenueMapState extends State<VenueMap> {
               ),
               onPressed: () {},
             ),
+            */
             PopupMenuButton<String>(
               onSelected: (handleActions),
               itemBuilder: (BuildContext context) {
-                return {'Add area', 'Delete area'}.map((String choice) {
+                return {
+                  'Add area',
+                }.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),

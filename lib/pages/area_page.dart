@@ -20,6 +20,7 @@ class AreaPage extends StatefulWidget {
 class _AreaPageState extends State<AreaPage> {
   Area area = Area("Loading...", LatLng(999, 999), 0);
   DataRepository dataRepository = DataRepository();
+  int sectionCount = 0;
 
   void handleActions(String value) {
     switch (value) {
@@ -52,6 +53,14 @@ class _AreaPageState extends State<AreaPage> {
         });
       }
     });
+    FirebaseFirestore.instance
+        .collection('venues')
+        .doc(widget.venueId)
+        .collection('areas')
+        .doc(widget.areaId)
+        .collection('sections')
+        .get()
+        .then((sections) => {sectionCount = sections.size});
   }
 
   @override
@@ -66,7 +75,6 @@ class _AreaPageState extends State<AreaPage> {
                 itemBuilder: (BuildContext context) {
                   return {
                     'Add section',
-                    'Delete section',
                   }.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
@@ -87,7 +95,32 @@ class _AreaPageState extends State<AreaPage> {
               ),
             ),
           ),
-          body: SectionPageView(widget.venueId, widget.areaId)),
+          body: sectionCount > 0
+              ? SectionPageView(widget.venueId, widget.areaId)
+              : Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text('Nothing to display',
+                          style: TextStyle(fontSize: 21)),
+                      ElevatedButton.icon(
+                          onPressed: () => {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddSection(
+                                            widget.venueId, widget.areaId)))
+                              },
+                          icon: Icon(Icons.add),
+                          style:
+                              ElevatedButton.styleFrom(primary: Colors.green),
+                          label: Text('Add section'))
+                    ],
+                  )),
+                )),
     );
   }
 }

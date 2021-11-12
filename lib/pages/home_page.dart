@@ -26,6 +26,30 @@ class _HomePageState extends State<HomePage> {
     return Future.value(defaultHomeTab);
   }
 
+  void _showMaterialDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Account'),
+            content: null,
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Login')),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Sign up'),
+              )
+            ],
+          );
+        });
+  }
+
   void handleActions(String value) {
     switch (value) {
       case 'Add venue':
@@ -92,14 +116,12 @@ class _HomePageState extends State<HomePage> {
                               Icons.person,
                               color: Colors.white,
                             ),
-                            onPressed: () {
-                              // do something
-                            },
+                            onPressed: _showMaterialDialog,
                           ),
                           PopupMenuButton<String>(
                             onSelected: (handleActions),
                             itemBuilder: (BuildContext context) {
-                              return {'Add venue', 'Delete venue', 'Settings'}
+                              return {'Add venue', 'Help', 'Settings'}
                                   .map((String choice) {
                                 return PopupMenuItem<String>(
                                   value: choice,
