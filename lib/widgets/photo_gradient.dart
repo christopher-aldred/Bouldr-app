@@ -84,14 +84,3 @@ class PhotoGradient extends StatelessWidget {
     );
   }
 }
-
-/*
-
-Text(text,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ))
-
-*/

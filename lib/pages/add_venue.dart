@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:bouldr/models/venue.dart';
 import 'package:bouldr/pages/venue_page.dart';
+import 'package:bouldr/utils/hex_color.dart';
 import 'package:bouldr/widgets/map_picker.dart';
 import 'package:bouldr/repository/data_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,7 +12,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
-import 'package:image/image.dart' as img;
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -125,19 +125,25 @@ class _AddVenueState extends State<AddVenue> {
 
     int? venueType;
 
+    Venue? newVenue;
+
     if (_dropDownValue == 'Indoor') {
       venueType = 1;
     } else if (_dropDownValue == 'Outdoor') {
       venueType = 0;
     }
 
-    Venue newVenue = Venue(textControllerName.text, chosenLocation!, venueType!,
-        textControllerDescription.text);
+    if (textControllerDescription.text == "") {
+      newVenue = Venue(textControllerName.text, chosenLocation!, venueType!);
+    } else {
+      newVenue = Venue(textControllerName.text, chosenLocation!, venueType!,
+          textControllerDescription.text);
+    }
 
     Future<DocumentReference> response = dr.addVenue(newVenue);
 
     response.then((value) => {
-          newVenue.referenceId = value.id,
+          newVenue!.referenceId = value.id,
           if (imageFile == null)
             {
               Navigator.of(context).pop(),
@@ -145,19 +151,10 @@ class _AddVenueState extends State<AddVenue> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          VenuePage(newVenue.referenceId.toString())))
+                          VenuePage(newVenue!.referenceId.toString())))
             },
           if (imageFile != null) {uploadImage(newVenue)},
         });
-
-    //Future<DocumentReference> response = dr.AddVenue(widget.venueId, widget.areaId, newSection);
-
-    /*
-    response.then((value) => {
-          newSection.referenceId = value.id,
-          uploadImage(newSection),
-        });
-    */
   }
 
   @override
@@ -238,10 +235,13 @@ class _AddVenueState extends State<AddVenue> {
                 width: double.infinity, // <-- match_parent
                 child: ElevatedButton.icon(
                   onPressed: _showMaterialDialog,
-                  icon: Icon(Icons.photo),
-                  label: Text('Choose image'),
+                  icon: Icon(Icons.photo, color: HexColor("808080")),
+                  label: Text(
+                    'Choose image',
+                    style: TextStyle(color: HexColor("808080")),
+                  ),
                   style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
+                      primary: Colors.lightGreenAccent,
                       padding: EdgeInsets.symmetric(vertical: 15),
                       textStyle: TextStyle(fontSize: 20)),
                 ),
@@ -263,10 +263,13 @@ class _AddVenueState extends State<AddVenue> {
                                     )))
                         .then((value) => {chosenLocation = value as LatLng})
                   },
-                  icon: Icon(Icons.location_on),
-                  label: Text('Set location'),
+                  icon: Icon(Icons.location_on, color: HexColor("808080")),
+                  label: Text(
+                    'Set location',
+                    style: TextStyle(color: HexColor("808080")),
+                  ),
                   style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
+                      primary: Colors.lightGreenAccent,
                       padding: EdgeInsets.symmetric(vertical: 15),
                       textStyle: TextStyle(fontSize: 20)),
                 ),

@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                 }),
               ),
             );
-          } // snapshot.data  :- get your object which is pass from your downloadData() function
+          }
         }
       },
     );

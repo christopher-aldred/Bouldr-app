@@ -31,15 +31,6 @@ class _AddAreaState extends State<AddArea> {
     dr.addArea(widget.venue.referenceId.toString(), newArea);
 
     Navigator.pop(context);
-
-    //Future<DocumentReference> response = dr.AddArea(widget.venueId, widget.areaId, newSection);
-
-    /*
-    response.then((value) => {
-          newSection.referenceId = value.id,
-          uploadImage(newSection),
-        });
-    */
   }
 
   @override

@@ -355,11 +355,8 @@ class _AddRoute2State extends State<AddRoute2> {
 
     imageFuture.then((uint8List) async {
       try {
-        //final ref = storage.ref(filePath);
-        //ref.putData(uint8List!);
-
-        var storageimage = FirebaseStorage.instance.ref().child(filePath);
-        UploadTask task1 = storageimage.putData(uint8List!);
+        var storageImage = FirebaseStorage.instance.ref().child(filePath);
+        UploadTask task1 = storageImage.putData(uint8List!);
 
         Future<String> url = (await task1).ref.getDownloadURL();
         url.then((value) => {
@@ -370,8 +367,6 @@ class _AddRoute2State extends State<AddRoute2> {
             });
         Navigator.of(context).pop();
         Navigator.of(context).pop();
-        //Navigator.of(context).pop();
-
       } on FirebaseException catch (error) {
         print(error);
       }
