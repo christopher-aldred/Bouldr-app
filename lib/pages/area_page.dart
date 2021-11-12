@@ -40,27 +40,32 @@ class _AreaPageState extends State<AreaPage> {
   void initState() {
     super.initState();
 
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .doc(widget.areaId)
-        .get()
-        .then((querySnapshot) {
-      if (querySnapshot.exists) {
-        setState(() {
-          area = Area.fromSnapshot(querySnapshot);
-        });
-      }
+    setState(() {
+      FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .collection('areas')
+          .doc(widget.areaId)
+          .get()
+          .then((querySnapshot) {
+        if (querySnapshot.exists) {
+          setState(() {
+            area = Area.fromSnapshot(querySnapshot);
+          });
+        }
+      });
     });
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .doc(widget.areaId)
-        .collection('sections')
-        .get()
-        .then((sections) => {sectionCount = sections.size});
+
+    setState(() {
+      FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .collection('areas')
+          .doc(widget.areaId)
+          .collection('sections')
+          .get()
+          .then((sections) => {sectionCount = sections.size});
+    });
   }
 
   @override

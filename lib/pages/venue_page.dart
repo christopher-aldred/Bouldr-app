@@ -9,6 +9,7 @@ import '../repository/data_repository.dart';
 import '../models/venue.dart';
 import '../widgets/photo_gradient.dart';
 import 'add_area.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 class VenuePage extends StatefulWidget {
   final String venueId;
@@ -37,23 +38,29 @@ class _VenuePageState extends State<VenuePage> {
   @override
   void initState() {
     super.initState();
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .get()
-        .then((querySnapshot) {
-      if (querySnapshot.exists) {
-        setState(() {
-          venue = Venue.fromSnapshot(querySnapshot);
-        });
-      }
+
+    setState(() {
+      FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .get()
+          .then((querySnapshot) {
+        if (querySnapshot.exists) {
+          setState(() {
+            venue = Venue.fromSnapshot(querySnapshot);
+          });
+        }
+      });
     });
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .get()
-        .then((areas) => {areaCount = areas.size});
+
+    setState(() {
+      FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .collection('areas')
+          .get()
+          .then((areas) => {areaCount = areas.size});
+    });
   }
 
   @override
@@ -73,6 +80,16 @@ class _VenuePageState extends State<VenuePage> {
                   // do something
                 },
               ),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.directions,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                MapsLauncher.launchCoordinates(
+                    venue.location.latitude, venue.location.longitude);
+              },
             ),
             PopupMenuButton<String>(
               onSelected: (handleActions),
