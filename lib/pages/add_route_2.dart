@@ -81,7 +81,7 @@ class _AddRoute2State extends State<AddRoute2> {
   }
 
   void initBackground() async {
-    final image = await NetworkImage(section.imagePath).image;
+    final image = await NetworkImage(section.imagePath.toString()).image;
     setState(() {
       backgroundImage = image;
       controller.background = image.backgroundDrawable;

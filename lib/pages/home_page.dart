@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls
 
+import 'package:bouldr/pages/add_venue.dart';
 import 'package:bouldr/widgets/home_map.dart';
 import 'package:bouldr/widgets/venue_list.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,9 @@ class _HomePageState extends State<HomePage> {
 
   void handleActions(String value) {
     switch (value) {
-      case 'Add section':
+      case 'Add venue':
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AddVenue()));
         break;
       case 'Settings':
         break;

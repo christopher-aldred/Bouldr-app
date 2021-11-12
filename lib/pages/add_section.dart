@@ -56,23 +56,6 @@ class _AddSectionState extends State<AddSection> {
         });
   }
 
-  /*
-  /// Get from gallery
-  _getFromGallery() async {
-    PickedFile? pickedFile = await ImagePicker().getImage(
-      source: ImageSource.gallery,
-      maxWidth: 1800,
-      maxHeight: 1800,
-    );
-
-    if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
-    }
-  }
-  */
-
   _getFromGallery() async {
     var image = await ImagePicker()
         .pickImage(source: ImageSource.gallery, imageQuality: 25);
@@ -84,7 +67,6 @@ class _AddSectionState extends State<AddSection> {
     }
   }
 
-  /// Get from Camera
   _getFromCamera() async {
     var image = await ImagePicker()
         .pickImage(source: ImageSource.camera, imageQuality: 25);
@@ -128,7 +110,7 @@ class _AddSectionState extends State<AddSection> {
   Future<void> save() async {
     if (imageFile == null) return;
 
-    Section newSection = Section(textControllerName.text, '');
+    Section newSection = Section(textControllerName.text);
 
     Future<DocumentReference> response =
         dr.addSection(widget.venueId, widget.areaId, newSection);

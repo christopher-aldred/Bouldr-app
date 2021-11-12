@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Section {
   //Required
   String name;
-  String imagePath;
+  String? imagePath;
 
   //Optional
   String? referenceId;
@@ -15,7 +15,7 @@ class Section {
   Verification? verification;
   List<Route>? routes;
 
-  Section(this.name, this.imagePath);
+  Section(this.name, [this.imagePath]);
 
   factory Section.fromSnapshot(DocumentSnapshot snapshot) {
     final newSection =

@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:bouldr/models/area.dart';
-import 'package:bouldr/models/grade.dart';
 import 'package:bouldr/models/venue.dart';
 import 'package:bouldr/widgets/map_picker.dart';
 import 'package:bouldr/repository/data_repository.dart';
@@ -17,7 +16,6 @@ class AddArea extends StatefulWidget {
 }
 
 class _AddAreaState extends State<AddArea> {
-  Grade grade = Grade();
   final TextEditingController textControllerName = TextEditingController();
   final TextEditingController textControllerDescription =
       TextEditingController();

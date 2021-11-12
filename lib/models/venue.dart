@@ -17,7 +17,7 @@ class Venue {
   String? imagePath;
   List<Area>? areas;
 
-  Venue(this.name, this.location, this.venueType);
+  Venue(this.name, this.location, this.venueType, [this.description]);
 
   factory Venue.fromSnapshot(DocumentSnapshot snapshot) {
     final newVenue = Venue.fromJson(snapshot.data() as Map<String, dynamic>);
@@ -52,18 +52,6 @@ Map<String, dynamic> _venueToJson(Venue instance) => <String, dynamic>{
       'location':
           GeoPoint(instance.location.latitude, instance.location.longitude),
       'venueType': instance.venueType,
+      'description': instance.description,
+      'image': instance.imagePath,
     };
-
-Venue createVenue(record) {
-  Map<dynamic, dynamic> attributes = {
-    'name': '',
-    'location': '',
-    'venueType': ''
-  };
-
-  record.forEach((key, value) => {attributes[key] = value});
-
-  Venue venue = Venue(
-      attributes['name'], attributes['location'], attributes['venueType']);
-  return venue;
-}

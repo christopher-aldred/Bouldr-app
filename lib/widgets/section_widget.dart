@@ -102,7 +102,7 @@ class _SectionWidgetState extends State<SectionWidget>
               maxScale: 4,
               child: Stack(children: <Widget>[
                 CachedNetworkImage(
-                  imageUrl: section.imagePath,
+                  imageUrl: section.imagePath.toString(),
                   imageBuilder: (context, imageProvider) => Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
