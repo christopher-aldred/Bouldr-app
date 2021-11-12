@@ -159,141 +159,139 @@ class _AddVenueState extends State<AddVenue> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Add venue'),
-          actions: <Widget>[],
-          backgroundColor: Colors.green,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add venue'),
+        actions: <Widget>[],
+        backgroundColor: Colors.green,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
           ),
         ),
-        body: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextField(
-                  autofocus: true,
-                  controller: textControllerName,
-                  textAlignVertical: TextAlignVertical.center,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    hintText: 'Name',
-                    border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 5)),
-                  ),
-                  onSubmitted: (text) => {}),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextField(
-                  controller: textControllerDescription,
-                  textAlignVertical: TextAlignVertical.center,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    hintText: 'Description',
-                    border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 5)),
-                  ),
-                  onSubmitted: (text) => {}),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: DropdownButton(
-                hint: _dropDownValue == ""
-                    ? Text('Select venue type')
-                    : Text(_dropDownValue),
-                isExpanded: true,
-                iconSize: 30.0,
-                items: ['Indoor', 'Outdoor'].map(
-                  (val) {
-                    return DropdownMenuItem<String>(
-                      value: val,
-                      child: Text(val),
-                    );
-                  },
-                ).toList(),
-                onChanged: (val) {
-                  setState(
-                    () {
-                      _dropDownValue = val.toString();
-                    },
+      ),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+                autofocus: true,
+                controller: textControllerName,
+                textAlignVertical: TextAlignVertical.center,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  hintText: 'Name',
+                  border: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 5)),
+                ),
+                onSubmitted: (text) => {}),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: TextField(
+                controller: textControllerDescription,
+                textAlignVertical: TextAlignVertical.center,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: 'Description',
+                  border: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 5)),
+                ),
+                onSubmitted: (text) => {}),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: DropdownButton(
+              hint: _dropDownValue == ""
+                  ? Text('Select venue type')
+                  : Text(_dropDownValue),
+              isExpanded: true,
+              iconSize: 30.0,
+              items: ['Indoor', 'Outdoor'].map(
+                (val) {
+                  return DropdownMenuItem<String>(
+                    value: val,
+                    child: Text(val),
                   );
                 },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: SizedBox(
-                width: double.infinity, // <-- match_parent
-                child: ElevatedButton.icon(
-                  onPressed: _showMaterialDialog,
-                  icon: Icon(Icons.photo, color: HexColor("808080")),
-                  label: Text(
-                    'Choose image',
-                    style: TextStyle(color: HexColor("808080")),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.lightGreenAccent,
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      textStyle: TextStyle(fontSize: 20)),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: SizedBox(
-                width: double.infinity, // <-- match_parent
-                child: ElevatedButton.icon(
-                  onPressed: () => {
-                    FocusScope.of(context).unfocus(),
-                    Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MapPicker(
-                                      _pos.latitude!.toDouble(),
-                                      _pos.longitude!.toDouble(),
-                                    )))
-                        .then((value) => {chosenLocation = value as LatLng})
+              ).toList(),
+              onChanged: (val) {
+                setState(
+                  () {
+                    _dropDownValue = val.toString();
                   },
-                  icon: Icon(Icons.location_on, color: HexColor("808080")),
-                  label: Text(
-                    'Set location',
-                    style: TextStyle(color: HexColor("808080")),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.lightGreenAccent,
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      textStyle: TextStyle(fontSize: 20)),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: SizedBox(
+              width: double.infinity, // <-- match_parent
+              child: ElevatedButton.icon(
+                onPressed: _showMaterialDialog,
+                icon: Icon(Icons.photo, color: HexColor("808080")),
+                label: Text(
+                  'Choose image',
+                  style: TextStyle(color: HexColor("808080")),
                 ),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.lightGreenAccent,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    textStyle: TextStyle(fontSize: 20)),
               ),
             ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Colors.green,
-          onPressed: () => {
-            if (textControllerName.text != "" &&
-                chosenLocation != null &&
-                _dropDownValue != "")
-              {save()}
-            else
-              {
-                Fluttertoast.showToast(
-                  msg: "Must input name, location & venue type",
-                )
-              }
-          },
-          label: Text('Save'),
-          icon: Icon(Icons.save),
-        ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: SizedBox(
+              width: double.infinity, // <-- match_parent
+              child: ElevatedButton.icon(
+                onPressed: () => {
+                  FocusScope.of(context).unfocus(),
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MapPicker(
+                                    _pos.latitude!.toDouble(),
+                                    _pos.longitude!.toDouble(),
+                                  )))
+                      .then((value) => {chosenLocation = value as LatLng})
+                },
+                icon: Icon(Icons.location_on, color: HexColor("808080")),
+                label: Text(
+                  'Set location',
+                  style: TextStyle(color: HexColor("808080")),
+                ),
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.lightGreenAccent,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    textStyle: TextStyle(fontSize: 20)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.green,
+        onPressed: () => {
+          if (textControllerName.text != "" &&
+              chosenLocation != null &&
+              _dropDownValue != "")
+            {save()}
+          else
+            {
+              Fluttertoast.showToast(
+                msg: "Must input name, location & venue type",
+              )
+            }
+        },
+        label: Text('Save'),
+        icon: Icon(Icons.save),
       ),
     );
   }

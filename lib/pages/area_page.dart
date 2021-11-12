@@ -65,62 +65,58 @@ class _AreaPageState extends State<AreaPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-          appBar: AppBar(
-            title: Text(area.name),
-            actions: <Widget>[
-              PopupMenuButton<String>(
-                onSelected: (handleActions),
-                itemBuilder: (BuildContext context) {
-                  return {
-                    'Add section',
-                  }.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                    );
-                  }).toList();
-                },
-              ),
-            ],
-            backgroundColor: Colors.green,
-            leading: InkWell(
-              onTap: () {
-                Navigator.pop(context);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(area.name),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (handleActions),
+              itemBuilder: (BuildContext context) {
+                return {
+                  'Add section',
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
               },
-              child: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
+            ),
+          ],
+          backgroundColor: Colors.green,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
           ),
-          body: sectionCount > 0
-              ? SectionPageView(widget.venueId, widget.areaId)
-              : Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Center(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Text('Nothing to display',
-                          style: TextStyle(fontSize: 21)),
-                      ElevatedButton.icon(
-                          onPressed: () => {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddSection(
-                                            widget.venueId, widget.areaId)))
-                              },
-                          icon: Icon(Icons.add),
-                          style:
-                              ElevatedButton.styleFrom(primary: Colors.green),
-                          label: Text('Add section'))
-                    ],
-                  )),
+        ),
+        body: sectionCount > 0
+            ? SectionPageView(widget.venueId, widget.areaId)
+            : Padding(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text('Nothing to display', style: TextStyle(fontSize: 21)),
+                    ElevatedButton.icon(
+                        onPressed: () => {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddSection(
+                                          widget.venueId, widget.areaId)))
+                            },
+                        icon: Icon(Icons.add),
+                        style: ElevatedButton.styleFrom(primary: Colors.green),
+                        label: Text('Add section'))
+                  ],
                 )),
-    );
+              ));
   }
 }

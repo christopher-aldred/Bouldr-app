@@ -11,14 +11,12 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Search'),
-          backgroundColor: Colors.green,
-        ),
-        body: Text(widget.search),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search'),
+        backgroundColor: Colors.green,
       ),
+      body: Text(widget.search),
     );
   }
 }

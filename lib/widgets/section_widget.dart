@@ -76,8 +76,7 @@ class _SectionWidgetState extends State<SectionWidget>
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
+    return Scaffold(
       body: Column(children: <Widget>[
         SizedBox(
           height: MediaQuery.of(context).size.height / 2,
@@ -161,7 +160,7 @@ class _SectionWidgetState extends State<SectionWidget>
         label: Text('Add route'),
         icon: Icon(Icons.add),
       ),
-    ));
+    );
   }
 
   @override

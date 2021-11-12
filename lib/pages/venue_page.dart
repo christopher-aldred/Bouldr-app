@@ -58,88 +58,85 @@ class _VenuePageState extends State<VenuePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-          appBar: AppBar(
-            //title: Text(widget.venue.name),
-            actions: <Widget>[
-              Visibility(
-                visible: venue.venueType == 0 ? true : false,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.cloud,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    // do something
-                  },
+    return Scaffold(
+        appBar: AppBar(
+          //title: Text(widget.venue.name),
+          actions: <Widget>[
+            Visibility(
+              visible: venue.venueType == 0 ? true : false,
+              child: IconButton(
+                icon: Icon(
+                  Icons.cloud,
+                  color: Colors.white,
                 ),
-              ),
-              PopupMenuButton<String>(
-                onSelected: (handleActions),
-                itemBuilder: (BuildContext context) {
-                  return {'Add area'}.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                    );
-                  }).toList();
+                onPressed: () {
+                  // do something
                 },
               ),
-            ],
-            backgroundColor: Colors.green,
-            leading: InkWell(
-              onTap: () {
-                Navigator.pop(context);
+            ),
+            PopupMenuButton<String>(
+              onSelected: (handleActions),
+              itemBuilder: (BuildContext context) {
+                return {'Add area'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
               },
-              child: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
+            ),
+          ],
+          backgroundColor: Colors.green,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
           ),
-          body: Column(
-            children: [
-              PhotoGradient(venue.name, venue.description.toString(),
-                  venue.imagePath.toString()),
-              areaCount > 0
-                  ? Expanded(child: AreaList(venue.referenceId.toString()))
-                  : Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Text('Nothing to display',
-                              style: TextStyle(fontSize: 21)),
-                          ElevatedButton.icon(
-                              onPressed: () => {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddArea(venue)))
-                                  },
-                              icon: Icon(Icons.add),
-                              style: ElevatedButton.styleFrom(
-                                  primary: Colors.green),
-                              label: Text('Add area'))
-                        ],
-                      ),
+        ),
+        body: Column(
+          children: [
+            PhotoGradient(venue.name, venue.description.toString(),
+                venue.imagePath.toString()),
+            areaCount > 0
+                ? Expanded(child: AreaList(venue.referenceId.toString()))
+                : Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text('Nothing to display',
+                            style: TextStyle(fontSize: 21)),
+                        ElevatedButton.icon(
+                            onPressed: () => {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AddArea(venue)))
+                                },
+                            icon: Icon(Icons.add),
+                            style:
+                                ElevatedButton.styleFrom(primary: Colors.green),
+                            label: Text('Add area'))
+                      ],
                     ),
-            ],
+                  ),
+          ],
+        ),
+        floatingActionButton: Visibility(
+          visible: venue.venueType == 0 ? true : false,
+          child: FloatingActionButton.extended(
+            backgroundColor: Colors.green,
+            onPressed: () => {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VenueMap(venue)))
+            },
+            label: Text('Map'),
+            icon: Icon(Icons.map),
           ),
-          floatingActionButton: Visibility(
-            visible: venue.venueType == 0 ? true : false,
-            child: FloatingActionButton.extended(
-              backgroundColor: Colors.green,
-              onPressed: () => {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => VenueMap(venue)))
-              },
-              label: Text('Map'),
-              icon: Icon(Icons.map),
-            ),
-          )),
-    );
+        ));
   }
 }
