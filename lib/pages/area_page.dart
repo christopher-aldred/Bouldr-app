@@ -20,7 +20,7 @@ class AreaPage extends StatefulWidget {
 class _AreaPageState extends State<AreaPage> {
   Area area = Area("Loading...", LatLng(999, 999), 0);
   DataRepository dataRepository = DataRepository();
-  int sectionCount = 0;
+  int sectionCount = -1;
 
   void handleActions(String value) {
     switch (value) {
@@ -99,7 +99,7 @@ class _AreaPageState extends State<AreaPage> {
             ),
           ),
         ),
-        body: sectionCount > 0
+        body: sectionCount != 0
             ? SectionPageView(widget.venueId, widget.areaId)
             : Padding(
                 padding: EdgeInsets.all(10),

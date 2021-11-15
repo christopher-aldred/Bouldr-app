@@ -22,7 +22,7 @@ class VenuePage extends StatefulWidget {
 class _VenuePageState extends State<VenuePage> {
   Venue venue = Venue("Loading...", LatLng(999, 999), 0);
   DataRepository dataRepository = DataRepository();
-  int areaCount = 0;
+  int areaCount = -1;
 
   void handleActions(String value) {
     switch (value) {
@@ -38,29 +38,26 @@ class _VenuePageState extends State<VenuePage> {
   @override
   void initState() {
     super.initState();
-
-    setState(() {
-      FirebaseFirestore.instance
-          .collection('venues')
-          .doc(widget.venueId)
-          .get()
-          .then((querySnapshot) {
-        if (querySnapshot.exists) {
-          setState(() {
-            venue = Venue.fromSnapshot(querySnapshot);
-          });
-        }
-      });
+    FirebaseFirestore.instance
+        .collection('venues')
+        .doc(widget.venueId)
+        .get()
+        .then((querySnapshot) {
+      if (querySnapshot.exists) {
+        setState(() {
+          venue = Venue.fromSnapshot(querySnapshot);
+        });
+      }
     });
+  }
 
-    setState(() {
-      FirebaseFirestore.instance
-          .collection('venues')
-          .doc(widget.venueId)
-          .collection('areas')
-          .get()
-          .then((areas) => {areaCount = areas.size});
-    });
+  void didChangeDependencies() {
+    FirebaseFirestore.instance
+        .collection('venues')
+        .doc(widget.venueId)
+        .collection('areas')
+        .get()
+        .then((areas) => {areaCount = areas.size});
   }
 
   @override
@@ -118,7 +115,7 @@ class _VenuePageState extends State<VenuePage> {
           children: [
             PhotoGradient(venue.name, venue.description.toString(),
                 venue.imagePath.toString()),
-            areaCount > 0
+            areaCount != 0
                 ? Expanded(child: AreaList(venue.referenceId.toString()))
                 : Padding(
                     padding: EdgeInsets.all(20),

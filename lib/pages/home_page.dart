@@ -1,10 +1,14 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls
 
 import 'package:bouldr/pages/add_venue.dart';
+import 'package:bouldr/pages/login.dart';
+import 'package:bouldr/pages/sign_up.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/home_map.dart';
 import 'package:bouldr/widgets/venue_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../repository/data_repository.dart';
 import '../widgets/home_map.dart';
@@ -26,26 +30,69 @@ class _HomePageState extends State<HomePage> {
     return Future.value(defaultHomeTab);
   }
 
+  void userAccountPressed() {
+    if (AuthenticationHelper().user == null) {
+      _showMaterialDialog();
+    } else {
+      Fluttertoast.showToast(
+        msg: AuthenticationHelper().user.displayName,
+      );
+    }
+  }
+
   void _showMaterialDialog() {
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Account'),
-            content: null,
+            title: Text(
+              'User account',
+              textAlign: TextAlign.center,
+            ),
+            content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignUpPage()));
+                          },
+                          child: Text('Sign Up'))),
+                  SizedBox(width: 20),
+                  Expanded(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()));
+                          },
+                          child: Text('Login'))) // button 2
+                ]),
+            /*
             actions: <Widget>[
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginPage()));
                   },
                   child: Text('Login')),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SignUpPage()));
                 },
                 child: Text('Sign up'),
               )
             ],
+            */
           );
         });
   }
@@ -53,8 +100,15 @@ class _HomePageState extends State<HomePage> {
   void handleActions(String value) {
     switch (value) {
       case 'Add venue':
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => AddVenue()));
+        if (AuthenticationHelper().user != null) {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => AddVenue()));
+        } else {
+          Fluttertoast.showToast(
+            msg: "Must be logged in to perform this action",
+          );
+        }
+        _showMaterialDialog();
         break;
       case 'Settings':
         break;
@@ -116,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                               Icons.person,
                               color: Colors.white,
                             ),
-                            onPressed: _showMaterialDialog,
+                            onPressed: userAccountPressed,
                           ),
                           PopupMenuButton<String>(
                             onSelected: (handleActions),
