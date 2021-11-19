@@ -98,6 +98,38 @@ class LoginPage extends StatelessWidget {
                       textStyle: TextStyle(fontSize: 20)),
                 )),
           ),
+          Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: TextButton(
+                onPressed: () => {
+                  if (textControllerEmail.text != "")
+                    {
+                      AuthenticationHelper()
+                          .forgottenPassword(textControllerEmail.text)
+                          .then((result) => {
+                                if (result != null)
+                                  {
+                                    Fluttertoast.showToast(
+                                      msg: result,
+                                    )
+                                  }
+                                else
+                                  {
+                                    Fluttertoast.showToast(
+                                      msg: "Reset link sent to email address",
+                                    )
+                                  }
+                              })
+                    }
+                  else
+                    {
+                      Fluttertoast.showToast(
+                        msg: "Must enter email address",
+                      )
+                    }
+                },
+                child: Text('Forgotten password'),
+              )),
         ],
       ),
     );

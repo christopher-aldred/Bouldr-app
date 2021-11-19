@@ -2,9 +2,11 @@
 
 import 'package:bouldr/models/area.dart';
 import 'package:bouldr/pages/add_section.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/section_page_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../repository/data_repository.dart';
 
@@ -18,18 +20,26 @@ class AreaPage extends StatefulWidget {
 }
 
 class _AreaPageState extends State<AreaPage> {
-  Area area = Area("Loading...", LatLng(999, 999), 0);
+  Area area = Area("Loading...", LatLng(999, 999), 0, "");
   DataRepository dataRepository = DataRepository();
   int sectionCount = -1;
 
   void handleActions(String value) {
     switch (value) {
       case 'Add section':
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    AddSection(widget.venueId, widget.areaId)));
+        if (AuthenticationHelper().user != null) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      AddSection(widget.venueId, widget.areaId)));
+        } else {
+          Fluttertoast.showToast(
+            msg: 'Must be logged in to perform this action',
+          );
+          AuthenticationHelper().loginDialogue(context);
+        }
+
         break;
       case 'Settings':
         break;
@@ -111,11 +121,22 @@ class _AreaPageState extends State<AreaPage> {
                     Text('Nothing to display', style: TextStyle(fontSize: 21)),
                     ElevatedButton.icon(
                         onPressed: () => {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AddSection(
-                                          widget.venueId, widget.areaId)))
+                              if (AuthenticationHelper().user != null)
+                                {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AddSection(
+                                              widget.venueId, widget.areaId)))
+                                }
+                              else
+                                {
+                                  AuthenticationHelper().loginDialogue(context),
+                                  Fluttertoast.showToast(
+                                    msg:
+                                        'Must be logged in to perform this action',
+                                  )
+                                }
                             },
                         icon: Icon(Icons.add),
                         style: ElevatedButton.styleFrom(primary: Colors.green),

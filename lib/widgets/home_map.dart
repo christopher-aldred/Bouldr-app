@@ -2,10 +2,13 @@
 
 import 'package:bouldr/pages/search_page.dart';
 import 'package:bouldr/pages/venue_page.dart';
+import 'package:bouldr/repository/data_repository.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/utils/hex_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -33,6 +36,60 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
   List<Marker> allMarkers = [];
 
   bool cragButtonVisibility = false;
+  DataRepository dr = DataRepository();
+
+  void optionsDialogue(
+      {required String id,
+      required String venueName,
+      required String createdBy}) {
+    FirebaseFirestore.instance
+        .collection("/users")
+        .doc(createdBy)
+        .get()
+        .then((data) => {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    if (AuthenticationHelper().user == null) {
+                      return AlertDialog(
+                        title: Text(venueName, textAlign: TextAlign.center),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Text('Created by: ' + data['displayName'])
+                          ],
+                        ),
+                      );
+                    } else {
+                      return AlertDialog(
+                        title: Text(venueName, textAlign: TextAlign.center),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Text('Created by: ' + data['displayName']),
+                            Padding(
+                                padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                child:
+                                    createdBy == AuthenticationHelper().user.uid
+                                        ? ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              dr.deleteVenue(id);
+                                            },
+                                            child: Text('Delete venue'))
+                                        : ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              // Report Route
+                                            },
+                                            child: Text('Report venue')))
+                          ],
+                        ),
+                      );
+                    }
+                  })
+            });
+  }
 
   @override
   void initState() {
@@ -72,18 +129,16 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
         MaterialPageRoute(builder: (context) => VenuePage(selectedCragId)));
   }
 
-  void addMapMarker(String id, String name, LatLng location, int venueType) {
+  void addMapMarker(String id, String name, LatLng location, int venueType,
+      String createdBy) {
     setState(() {
       // add marker
       allMarkers.add(Marker(
         markerId: MarkerId(id),
         infoWindow: InfoWindow(
           title: name,
-          /*
-            onTap: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => VenuePage(id)))
-          }*/
+          onTap: () =>
+              {optionsDialogue(id: id, venueName: name, createdBy: createdBy)},
         ),
         draggable: false,
         icon: venueType == 0 ? icon : gymMarker,
@@ -112,8 +167,8 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
         String name = result["name"];
         GeoPoint geoPoint = result["location"];
         int venueType = result["venueType"].toInt();
-        addMapMarker(
-            id, name, LatLng(geoPoint.latitude, geoPoint.longitude), venueType);
+        addMapMarker(id, name, LatLng(geoPoint.latitude, geoPoint.longitude),
+            venueType, result['createdBy']);
       });
     });
   }
@@ -130,6 +185,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Stack(children: <Widget>[
       // The containers in the background
       GoogleMap(
@@ -155,6 +211,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
         padding: EdgeInsets.only(top: 20.0, right: 20.0, left: 20.0),
         child: Card(
           child: TextField(
+            textCapitalization: TextCapitalization.words,
             controller: textController,
             textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
@@ -178,12 +235,15 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
                 color: Colors.white,
                 borderRadius: BorderRadius.all(Radius.circular(10))),
             alignment: Alignment.topCenter,
-            child: Text(
-              selectedCragName,
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
-                color: HexColor("808080"),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+              child: Text(
+                selectedCragName,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: HexColor("808080"),
+                ),
               ),
             ),
             margin:

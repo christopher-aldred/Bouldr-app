@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:bouldr/pages/venue_map.dart';
+import 'package:bouldr/widgets/gradeBarChart.dart';
+import 'package:bouldr/widgets/venue_map.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/area_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:open_weather_widget/open_weather_widget.dart';
 import '../repository/data_repository.dart';
 import '../models/venue.dart';
 import '../widgets/photo_gradient.dart';
@@ -20,15 +23,64 @@ class VenuePage extends StatefulWidget {
 }
 
 class _VenuePageState extends State<VenuePage> {
-  Venue venue = Venue("Loading...", LatLng(999, 999), 0);
+  Venue venue = Venue("Loading...", LatLng(999, 999), 0, "");
   DataRepository dataRepository = DataRepository();
   int areaCount = -1;
+  List<int> gradeCount = [0, 0, 0, 0, 0];
+
+  bool noRoutes() {
+    int routeCount = 0;
+    routeCount += gradeCount[0] +
+        gradeCount[1] +
+        gradeCount[2] +
+        gradeCount[3] +
+        gradeCount[4];
+    return routeCount == 0;
+  }
+
+  void weatherDialogue() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.all(20),
+              contentPadding: EdgeInsets.zero,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              content: Builder(
+                builder: (context) {
+                  // Get available height and width of the build area of this widget. Make a choice depending on the size.
+                  var width = MediaQuery.of(context).size.width;
+                  return Container(
+                    width: width,
+                    height: 200,
+                    child: OpenWeatherWidget(
+                      latitude: venue.location.latitude,
+                      longitude: venue.location.longitude,
+                      location: venue.name,
+                      apiKey: "ed697e99a5234925f46e26bbd132e47e",
+                      alignment: MainAxisAlignment.center,
+                    ),
+                  );
+                },
+              ),
+            ));
+  }
 
   void handleActions(String value) {
     switch (value) {
       case 'Add area':
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => AddArea(venue)));
+        if (AuthenticationHelper().user != null) {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => AddArea(venue)));
+        } else {
+          Fluttertoast.showToast(
+            msg: 'Must be logged in to perform this action',
+          );
+          AuthenticationHelper().loginDialogue(context);
+        }
+
         break;
       case 'Settings':
         break;
@@ -51,20 +103,81 @@ class _VenuePageState extends State<VenuePage> {
     });
   }
 
+  @override
   void didChangeDependencies() {
-    FirebaseFirestore.instance
+    super.didChangeDependencies();
+    var response = FirebaseFirestore.instance
         .collection('venues')
         .doc(widget.venueId)
         .collection('areas')
         .get()
-        .then((areas) => {areaCount = areas.size});
+        .then((areas) => {
+              areaCount = areas.size,
+              areas.docs.forEach((area) {
+                FirebaseFirestore.instance
+                    .collection('venues')
+                    .doc(widget.venueId)
+                    .collection('areas')
+                    .doc(area.id)
+                    .collection('sections')
+                    .get()
+                    .then((sections) => {
+                          sections.docs.forEach((section) {
+                            FirebaseFirestore.instance
+                                .collection('venues')
+                                .doc(widget.venueId)
+                                .collection('areas')
+                                .doc(area.id)
+                                .collection('sections')
+                                .doc(section.id)
+                                .collection('routes')
+                                .get()
+                                .then((routes) => {
+                                      routes.docs.forEach((route) {
+                                        FirebaseFirestore.instance
+                                            .collection('venues')
+                                            .doc(widget.venueId)
+                                            .collection('areas')
+                                            .doc(area.id)
+                                            .collection('sections')
+                                            .doc(section.id)
+                                            .collection('routes')
+                                            .doc(route.id)
+                                            .get()
+                                            .then((route) => {
+                                                  setState(() {
+                                                    if (route['grade'] <= 2) {
+                                                      gradeCount[0] += 1;
+                                                    }
+                                                    if (route['grade'] > 2 &&
+                                                        route['grade'] <= 4) {
+                                                      gradeCount[1] += 1;
+                                                    }
+                                                    if (route['grade'] > 4 &&
+                                                        route['grade'] <= 10) {
+                                                      gradeCount[2] += 1;
+                                                    }
+                                                    if (route['grade'] > 10 &&
+                                                        route['grade'] <= 16) {
+                                                      gradeCount[3] += 1;
+                                                    }
+                                                    if (route['grade'] > 16) {
+                                                      gradeCount[4] += 1;
+                                                    }
+                                                  }),
+                                                });
+                                      })
+                                    });
+                          })
+                        });
+              })
+            });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          //title: Text(widget.venue.name),
           actions: <Widget>[
             Visibility(
               visible: venue.venueType == 0 ? true : false,
@@ -73,9 +186,7 @@ class _VenuePageState extends State<VenuePage> {
                   Icons.cloud,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  // do something
-                },
+                onPressed: weatherDialogue,
               ),
             ),
             IconButton(
@@ -115,6 +226,21 @@ class _VenuePageState extends State<VenuePage> {
           children: [
             PhotoGradient(venue.name, venue.description.toString(),
                 venue.imagePath.toString()),
+            Visibility(
+              visible: !noRoutes(),
+              child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: AspectRatio(
+                    aspectRatio: 3,
+                    child: Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      color: Colors.transparent,
+                      child: GradeBarChart(gradeCount),
+                    ),
+                  )),
+            ),
             areaCount != 0
                 ? Expanded(child: AreaList(venue.referenceId.toString()))
                 : Padding(
@@ -126,10 +252,23 @@ class _VenuePageState extends State<VenuePage> {
                             style: TextStyle(fontSize: 21)),
                         ElevatedButton.icon(
                             onPressed: () => {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => AddArea(venue)))
+                                  if (AuthenticationHelper().user != null)
+                                    {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AddArea(venue)))
+                                    }
+                                  else
+                                    {
+                                      AuthenticationHelper()
+                                          .loginDialogue(context),
+                                      Fluttertoast.showToast(
+                                        msg:
+                                            'Must be logged in to perform this action',
+                                      )
+                                    }
                                 },
                             icon: Icon(Icons.add),
                             style:

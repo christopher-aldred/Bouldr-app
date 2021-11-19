@@ -2,9 +2,11 @@
 
 import 'package:bouldr/models/grade.dart';
 import 'package:bouldr/pages/add_route_2.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/utils/hex_color.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddRoute1 extends StatefulWidget {
   final String venueId;
@@ -23,111 +25,141 @@ class _AddRoute1State extends State<AddRoute1> {
   final TextEditingController textControllerDescription =
       TextEditingController();
   String dropdownValue = 'Select grade';
+  late SharedPreferences prefs;
+
+  Future<String> getGradingScale() async {
+    prefs = await SharedPreferences.getInstance();
+    var defaultHomeTab = prefs.getString('gradingScale');
+    return Future.value(defaultHomeTab);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (AuthenticationHelper().user == null) {
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add route'),
-        actions: <Widget>[],
-        backgroundColor: Colors.green,
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-                autofocus: true,
-                controller: textControllerName,
-                textCapitalization: TextCapitalization.words,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                  hintText: 'Name',
-                  border: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 5)),
+    return FutureBuilder<String>(
+        future: getGradingScale(),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Add route'),
+              actions: <Widget>[],
+              backgroundColor: Colors.green,
+              leading: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
                 ),
-                onSubmitted: (text) => {}),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-                controller: textControllerDescription,
-                textAlignVertical: TextAlignVertical.center,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: 'Description',
-                  border: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 5)),
-                ),
-                onSubmitted: (text) => {}),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: dropdownValue,
-              icon: const Icon(Icons.arrow_downward),
-              iconSize: 24,
-              elevation: 16,
-              style: TextStyle(color: HexColor("808080")),
-              underline: Container(
-                height: 2,
-                color: Colors.green,
               ),
-              onChanged: (String? newValue) {
-                setState(() {
-                  dropdownValue = newValue!;
-                });
-              },
-              items: grade.gradeMatrix[1]
-                  .toSet()
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.green,
-        onPressed: () => {
-          if (textControllerName.text != "" &&
-              dropdownValue.toLowerCase() != "select grade")
-            {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddRoute2(
-                          widget.venueId,
-                          widget.areaId,
-                          widget.sectionId,
-                          textControllerName.text.toString(),
-                          textControllerDescription.text.toString(),
-                          dropdownValue))),
-              FocusScope.of(context).unfocus()
-            }
-          else
-            {
-              Fluttertoast.showToast(
-                msg: "Must enter name & grade",
-              )
-            }
-        },
-        label: Text('Next'),
-        icon: Icon(Icons.check),
-      ),
-    );
+            body: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: TextField(
+                      autofocus: true,
+                      controller: textControllerName,
+                      textCapitalization: TextCapitalization.words,
+                      textAlignVertical: TextAlignVertical.center,
+                      decoration: InputDecoration(
+                        hintText: 'Name',
+                        border: const OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.black, width: 5)),
+                      ),
+                      onSubmitted: (text) => {}),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: TextField(
+                      controller: textControllerDescription,
+                      textAlignVertical: TextAlignVertical.center,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: InputDecoration(
+                        hintText: 'Description',
+                        border: const OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.black, width: 5)),
+                      ),
+                      onSubmitted: (text) => {}),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: dropdownValue,
+                    icon: const Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    style: TextStyle(color: HexColor("808080")),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.green,
+                    ),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dropdownValue = newValue!;
+                      });
+                    },
+                    items: prefs.getString('gradingScale') == "f"
+                        ? grade.gradeMatrix[0]
+                            .toSet()
+                            .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList()
+                        : grade.gradeMatrix[1]
+                            .toSet()
+                            .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                  ),
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton.extended(
+              backgroundColor: Colors.green,
+              onPressed: () => {
+                if (textControllerName.text != "" &&
+                    dropdownValue.toLowerCase() != "select grade")
+                  {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddRoute2(
+                                widget.venueId,
+                                widget.areaId,
+                                widget.sectionId,
+                                textControllerName.text.toString(),
+                                textControllerDescription.text.toString(),
+                                dropdownValue))),
+                    FocusScope.of(context).unfocus()
+                  }
+                else
+                  {
+                    Fluttertoast.showToast(
+                      msg: "Must enter name & grade",
+                    )
+                  }
+              },
+              label: Text('Next'),
+              icon: Icon(Icons.check),
+            ),
+          );
+        });
   }
 }

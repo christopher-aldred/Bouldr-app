@@ -113,16 +113,16 @@ class SignUpPage extends StatelessWidget {
                       }
                     else
                       {
-                        if (textControllerEmail.text == "")
-                          {
-                            Fluttertoast.showToast(
-                              msg: "Must enter email address",
-                            )
-                          }
-                        else if (textControllerDisplayName.text == "")
+                        if (textControllerDisplayName.text == "")
                           {
                             Fluttertoast.showToast(
                               msg: "Must enter display name",
+                            )
+                          }
+                        else if (textControllerEmail.text == "")
+                          {
+                            Fluttertoast.showToast(
+                              msg: "Must enter email address",
                             )
                           }
                         else if (textControllerPass1.text == "")

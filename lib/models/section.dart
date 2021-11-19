@@ -1,21 +1,22 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:bouldr/models/route.dart';
+//import 'package:bouldr/models/route.dart';
 import 'package:bouldr/models/verification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Section {
   //Required
   String name;
-  String? imagePath;
+  String createdBy;
 
   //Optional
-  String? referenceId;
   String? description;
+  String? imagePath;
+  String? referenceId;
   Verification? verification;
-  List<Route>? routes;
+  //List<Route>? routes;
 
-  Section(this.name, [this.imagePath]);
+  Section(this.name, this.createdBy, [this.description, this.imagePath]);
 
   factory Section.fromSnapshot(DocumentSnapshot snapshot) {
     final newSection =
@@ -33,19 +34,20 @@ class Section {
 }
 
 Section _SectionFromJson(Map<String, dynamic> json) {
-  //Required attributes
+  Section section = Section(
+    json['name'],
+    json['createdBy'],
+    json['description'],
+    json['image'],
+  );
 
-  Section section = Section(json['name'], json['image']);
-
-  //Optional attributes
-  section.description = json['description'];
-  section.imagePath = json['image'];
-
-  //Return
   return section;
 }
 
 Map<String, dynamic> _SectionToJson(Section instance) => <String, dynamic>{
       'name': instance.name,
+      'createdBy': instance.createdBy,
+      'description': instance.description,
       'image': instance.imagePath,
+      'searchField': instance.name.toLowerCase(),
     };

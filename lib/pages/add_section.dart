@@ -2,10 +2,10 @@
 
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:bouldr/models/grade.dart';
 import 'package:bouldr/models/section.dart';
+import 'package:bouldr/pages/area_page.dart';
 import 'package:bouldr/repository/data_repository.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -23,14 +23,23 @@ class AddSection extends StatefulWidget {
 }
 
 class _AddSectionState extends State<AddSection> {
-  Grade grade = Grade();
   final TextEditingController textControllerName = TextEditingController();
   final TextEditingController textControllerDescription =
       TextEditingController();
   File? imageFile;
   DataRepository dr = DataRepository();
+  bool saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AuthenticationHelper().user == null) {
+      Navigator.pop(context);
+    }
+  }
 
   void _showMaterialDialog() {
+    FocusScope.of(context).unfocus();
     showDialog(
         context: context,
         builder: (context) {
@@ -82,7 +91,7 @@ class _AddSectionState extends State<AddSection> {
     final imageFuture = imageFile!.readAsBytesSync();
 
     img.Image? imageTemp = img.decodeImage(imageFuture);
-    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 1000);
+    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 1500);
     final uploadImage =
         Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
 
@@ -99,18 +108,31 @@ class _AddSectionState extends State<AddSection> {
       Future<String> url = (await task1).ref.getDownloadURL();
       url.then((value) => {
             {newSection.imagePath = value},
-            dr.updateSection(widget.venueId, widget.areaId, newSection)
+            dr.updateSection(widget.venueId, widget.areaId, newSection),
+            Navigator.of(context).pop(),
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AreaPage(widget.venueId, widget.areaId),
+              ),
+            )
           });
-      Navigator.of(context).pop();
     } on FirebaseException catch (error) {
       print(error);
     }
   }
 
   Future<void> save() async {
-    if (imageFile == null) return;
+    if (imageFile == null ||
+        textControllerName.text == "" ||
+        AuthenticationHelper().user == null) return;
 
-    Section newSection = Section(textControllerName.text);
+    setState(() {
+      saving = true;
+    });
+
+    Section newSection = Section(textControllerName.text,
+        AuthenticationHelper().user.uid, textControllerDescription.text);
 
     Future<DocumentReference> response =
         dr.addSection(widget.venueId, widget.areaId, newSection);
@@ -138,64 +160,83 @@ class _AddSectionState extends State<AddSection> {
           ),
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-                autofocus: true,
-                controller: textControllerName,
-                textAlignVertical: TextAlignVertical.center,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  hintText: 'Name',
-                  border: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 5)),
+      body: Stack(children: <Widget>[
+        Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                  autofocus: true,
+                  controller: textControllerName,
+                  textAlignVertical: TextAlignVertical.center,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    hintText: 'Name',
+                    border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 5)),
+                  ),
+                  onSubmitted: (text) => {}),
+            ),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                  controller: textControllerDescription,
+                  textAlignVertical: TextAlignVertical.center,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    hintText: 'Description',
+                    border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 5)),
+                  ),
+                  onSubmitted: (text) => {}),
+            ),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: SizedBox(
+                  width: double.infinity, // <-- match_parent
+                  child: ElevatedButton(
+                    child: Text('Select image'),
+                    onPressed: _showMaterialDialog,
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        textStyle: TextStyle(fontSize: 20)),
+                  )),
+            ),
+          ],
+        ),
+        Visibility(
+            visible: saving,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              color: Colors.black.withOpacity(0.75),
+              child: SizedBox(
+                height: 100,
+                width: 100,
+                child: Center(
+                  child: CircularProgressIndicator(color: Colors.grey),
                 ),
-                onSubmitted: (text) => {}),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: TextField(
-                controller: textControllerDescription,
-                textAlignVertical: TextAlignVertical.center,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: 'Description',
-                  border: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 5)),
-                ),
-                onSubmitted: (text) => {}),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: SizedBox(
-                width: double.infinity, // <-- match_parent
-                child: ElevatedButton(
-                  child: Text('Select image'),
-                  onPressed: _showMaterialDialog,
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.green,
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      textStyle: TextStyle(fontSize: 20)),
-                )),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.green,
-        onPressed: () => {
-          if (textControllerName.text != "" && imageFile != null)
-            {save()}
-          else
-            {
-              Fluttertoast.showToast(
-                msg: "Must input name & image",
-              )
-            }
-        },
-        label: Text('Save'),
-        icon: Icon(Icons.save),
+              ),
+            )),
+      ]),
+      floatingActionButton: Visibility(
+        visible: !saving,
+        child: FloatingActionButton.extended(
+          backgroundColor: Colors.green,
+          onPressed: () => {
+            if (textControllerName.text != "" && imageFile != null)
+              {save()}
+            else
+              {
+                Fluttertoast.showToast(
+                  msg: "Must input name & image",
+                )
+              }
+          },
+          label: Text('Save'),
+          icon: Icon(Icons.save),
+        ),
       ),
     );
   }

@@ -2,7 +2,6 @@
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 
 class MapPicker extends StatefulWidget {
   final double startLat;
@@ -15,7 +14,6 @@ class MapPicker extends StatefulWidget {
 
 class _MapPickerState extends State<MapPicker> {
   late GoogleMapController _controller;
-  Location _location = Location();
   late LatLng _lastMapPosition;
 
   void _onMapCreated(GoogleMapController _cntlr) {

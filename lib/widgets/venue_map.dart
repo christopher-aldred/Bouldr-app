@@ -25,7 +25,6 @@ class _VenueMapState extends State<VenueMap> {
         .get()
         .then((querySnapshot) {
       querySnapshot.docs.forEach((result) {
-        String id = result.id;
         String name = result["name"];
         GeoPoint geoPoint = result["location"];
 
@@ -107,30 +106,6 @@ class _VenueMapState extends State<VenueMap> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.venue.name + " map"),
-          actions: <Widget>[
-            /*
-            IconButton(
-              icon: Icon(
-                Icons.filter_list_alt,
-                color: Colors.white,
-              ),
-              onPressed: () {},
-            ),
-            */
-            PopupMenuButton<String>(
-              onSelected: (handleActions),
-              itemBuilder: (BuildContext context) {
-                return {
-                  'Add area',
-                }.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            ),
-          ],
           backgroundColor: Colors.green,
           leading: InkWell(
             onTap: () {

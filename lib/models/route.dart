@@ -7,16 +7,17 @@ class Route {
   //Required
   String name;
   int grade;
-  String? baseImagePath;
+  String createdBy;
 
   //Optional
   String? referenceId;
   String? description;
   Verification? verification;
   String? imagePath;
-  List? routes;
+  //List? routes;
 
-  Route(this.name, this.grade);
+  Route(this.name, this.grade, this.createdBy,
+      [this.description, this.imagePath]);
 
   factory Route.fromSnapshot(DocumentSnapshot snapshot) {
     final newSection = Route.fromJson(snapshot.data() as Map<String, dynamic>);
@@ -35,11 +36,13 @@ class Route {
 Route _RouteFromJson(Map<String, dynamic> json) {
   //Required attributes
 
-  Route route = Route(json['name'], json['grade']);
-
-  //Optional attributes
-  route.description = json['description'];
-  route.imagePath = json['image'];
+  Route route = Route(
+    json['name'],
+    json['grade'],
+    json['createdBy'],
+    json['description'],
+    json['image'],
+  );
 
   //Return
   return route;
@@ -48,5 +51,8 @@ Route _RouteFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _RouteToJson(Route instance) => <String, dynamic>{
       'name': instance.name,
       'grade': instance.grade,
+      'createdBy': instance.createdBy,
       'image': instance.imagePath,
+      'searchField': instance.name.toLowerCase(),
+      // 'searchTerms': FieldValue.arrayUnion(SearchFunctions.getSearchTerms(instance.name)),
     };

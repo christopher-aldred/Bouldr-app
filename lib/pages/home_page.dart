@@ -1,11 +1,10 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls
 
 import 'package:bouldr/pages/add_venue.dart';
-import 'package:bouldr/pages/login.dart';
-import 'package:bouldr/pages/sign_up.dart';
+import 'package:bouldr/pages/settings_page.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/home_map.dart';
-import 'package:bouldr/widgets/venue_list.dart';
+import 'package:bouldr/widgets/venue_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -32,69 +31,12 @@ class _HomePageState extends State<HomePage> {
 
   void userAccountPressed() {
     if (AuthenticationHelper().user == null) {
-      _showMaterialDialog();
+      AuthenticationHelper().loginDialogue(context);
     } else {
       Fluttertoast.showToast(
-        msg: AuthenticationHelper().user.displayName,
+        msg: AuthenticationHelper().user.uid,
       );
     }
-  }
-
-  void _showMaterialDialog() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(
-              'User account',
-              textAlign: TextAlign.center,
-            ),
-            content: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                      child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SignUpPage()));
-                          },
-                          child: Text('Sign Up'))),
-                  SizedBox(width: 20),
-                  Expanded(
-                      child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginPage()));
-                          },
-                          child: Text('Login'))) // button 2
-                ]),
-            /*
-            actions: <Widget>[
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginPage()));
-                  },
-                  child: Text('Login')),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SignUpPage()));
-                },
-                child: Text('Sign up'),
-              )
-            ],
-            */
-          );
-        });
   }
 
   void handleActions(String value) {
@@ -107,10 +49,12 @@ class _HomePageState extends State<HomePage> {
           Fluttertoast.showToast(
             msg: "Must be logged in to perform this action",
           );
+          AuthenticationHelper().loginDialogue(context);
         }
-        _showMaterialDialog();
         break;
       case 'Settings':
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => SettingsPage()));
         break;
     }
   }
@@ -153,7 +97,14 @@ class _HomePageState extends State<HomePage> {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
+            if (prefs.getString('gradingScale') == null) {
+              prefs.setString('gradingScale', "v");
+            }
             return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                primarySwatch: Colors.green,
+              ),
               home: DefaultTabController(
                 initialIndex: snapshot.data!.toInt(),
                 length: 2,
@@ -170,12 +121,13 @@ class _HomePageState extends State<HomePage> {
                               Icons.person,
                               color: Colors.white,
                             ),
-                            onPressed: userAccountPressed,
+                            onPressed: () =>
+                                {AuthenticationHelper().loginDialogue(context)},
                           ),
                           PopupMenuButton<String>(
                             onSelected: (handleActions),
                             itemBuilder: (BuildContext context) {
-                              return {'Add venue', 'Help', 'Settings'}
+                              return {'Add venue', 'Settings'}
                                   .map((String choice) {
                                 return PopupMenuItem<String>(
                                   value: choice,
@@ -206,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                       physics: NeverScrollableScrollPhysics(),
                       children: <Widget>[
                         HomeMapWidget(),
-                        VenueList(),
+                        VenueWidget(),
                       ],
                     ),
                   );

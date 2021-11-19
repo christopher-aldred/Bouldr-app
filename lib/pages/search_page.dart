@@ -1,3 +1,5 @@
+import 'package:bouldr/widgets/venue_list.dart';
+import 'package:bouldr/widgets/venue_widget.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
@@ -13,10 +15,10 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: Text('Search: ' + widget.search),
         backgroundColor: Colors.green,
       ),
-      body: Text(widget.search),
+      body: VenueList(widget.search),
     );
   }
 }

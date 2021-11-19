@@ -34,7 +34,7 @@ class SectionPageView extends StatelessWidget {
                   padding: EdgeInsets.all(5),
                   child: Text(
                       (position + 1).toString() +
-                          '/' +
+                          ' / ' +
                           snapshot.data!.docs.length.toString(),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey, fontSize: 16)),
