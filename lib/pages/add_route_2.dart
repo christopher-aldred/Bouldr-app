@@ -238,6 +238,7 @@ class _AddRoute2State extends State<AddRoute2> {
                               child: ElevatedButton(
                                   onPressed: () {
                                     setFreeStyleColor(195);
+                                    brushModeOn();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.blue,
@@ -251,6 +252,7 @@ class _AddRoute2State extends State<AddRoute2> {
                               child: ElevatedButton(
                                   onPressed: () {
                                     setFreeStyleColor(60);
+                                    brushModeOn();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.yellow,
@@ -265,6 +267,7 @@ class _AddRoute2State extends State<AddRoute2> {
                               child: ElevatedButton(
                                   onPressed: () {
                                     setFreeStyleColor(345);
+                                    brushModeOn();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.red,
@@ -278,6 +281,7 @@ class _AddRoute2State extends State<AddRoute2> {
                               child: ElevatedButton(
                                   onPressed: () {
                                     setFreeStyleColor(105);
+                                    brushModeOn();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.green,
@@ -349,6 +353,10 @@ class _AddRoute2State extends State<AddRoute2> {
   void zoomScreen() {
     if (controller.freeStyleSettings.enabled) toggleFreeStyle();
     //controller.addText();
+  }
+
+  void brushModeOn() {
+    if (!controller.freeStyleSettings.enabled) toggleFreeStyle();
   }
 
   void setFreeStyleStrokeWidth(double value) {

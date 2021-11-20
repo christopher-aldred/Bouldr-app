@@ -63,5 +63,6 @@ Map<String, dynamic> _venueToJson(Venue instance) => <String, dynamic>{
       'description': instance.description,
       'image': instance.imagePath,
       'searchField': instance.name.toLowerCase(),
+      'timestamp': FieldValue.serverTimestamp(),
       //'searchTerms': FieldValue.arrayUnion(SearchFunctions.getSearchTerms(instance.name)),
     };

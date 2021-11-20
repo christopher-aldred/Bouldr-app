@@ -65,7 +65,6 @@ class _VenueListState extends State<VenueList>
                                         : ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              // Report Route
                                             },
                                             child: Text('Report venue')))
                           ],

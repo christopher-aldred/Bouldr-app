@@ -1,26 +1,103 @@
 import 'package:bouldr/utils/hex_color.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GradeBarChart extends StatelessWidget {
   List<int> gradeCount;
   GradeBarChart(this.gradeCount);
+  late SharedPreferences prefs;
+
+  void getPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  Future<String> getGradingScale() async {
+    prefs = await SharedPreferences.getInstance();
+    var defaultHomeTab = prefs.getString('gradingScale');
+    return Future.value(defaultHomeTab);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
-      child: BarChart(
-        BarChartData(
-          gridData: FlGridData(show: false),
-          barTouchData: barTouchData,
-          titlesData: titlesData,
-          borderData: borderData,
-          barGroups: barGroups,
-          alignment: BarChartAlignment.spaceAround,
-        ),
-      ),
-    );
+    return FutureBuilder<String>(
+        future: getGradingScale(),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+            child: BarChart(
+              BarChartData(
+                gridData: FlGridData(show: false),
+                barTouchData: barTouchData,
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: SideTitles(
+                    showTitles: true,
+                    getTextStyles: (context, value) => TextStyle(
+                      color: HexColor('525252'),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    margin: 5,
+                    getTitles: (double value) {
+                      switch (value.toInt()) {
+                        case 0:
+                          if (snapshot.data == "v") {
+                            return 'VB - V0';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f3 - f4';
+                          }
+                          return "";
+
+                        case 1:
+                          if (snapshot.data == "v") {
+                            return 'V1 - V2';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f4 - f5';
+                          }
+                          return "";
+                        case 2:
+                          if (snapshot.data == "v") {
+                            return 'V3 - V5';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f6A - f6C';
+                          }
+                          return "";
+                        case 3:
+                          if (snapshot.data == "v") {
+                            return 'V6 - V10';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f7A - f7C';
+                          }
+                          return "";
+                        case 4:
+                          if (snapshot.data == "v") {
+                            return 'V11+';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f8A+';
+                          }
+                          return "";
+                        default:
+                          return '';
+                      }
+                    },
+                  ),
+                  leftTitles: SideTitles(showTitles: false),
+                  topTitles: SideTitles(showTitles: false),
+                  rightTitles: SideTitles(showTitles: false),
+                ),
+                borderData: borderData,
+                barGroups: barGroups,
+                alignment: BarChartAlignment.spaceAround,
+              ),
+            ),
+          );
+        });
   }
 
   BarTouchData get barTouchData => BarTouchData(
@@ -44,38 +121,6 @@ class GradeBarChart extends StatelessWidget {
             );
           },
         ),
-      );
-
-  FlTitlesData get titlesData => FlTitlesData(
-        show: true,
-        bottomTitles: SideTitles(
-          showTitles: true,
-          getTextStyles: (context, value) => TextStyle(
-            color: HexColor('525252'),
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-          margin: 5,
-          getTitles: (double value) {
-            switch (value.toInt()) {
-              case 0:
-                return 'VB - V0';
-              case 1:
-                return 'V1 - V2';
-              case 2:
-                return 'V3 - V5';
-              case 3:
-                return 'V6 - V10';
-              case 4:
-                return 'V11+';
-              default:
-                return '';
-            }
-          },
-        ),
-        leftTitles: SideTitles(showTitles: false),
-        topTitles: SideTitles(showTitles: false),
-        rightTitles: SideTitles(showTitles: false),
       );
 
   FlBorderData get borderData => FlBorderData(

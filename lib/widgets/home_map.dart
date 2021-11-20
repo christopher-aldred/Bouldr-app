@@ -80,7 +80,6 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
                                         : ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              // Report Route
                                             },
                                             child: Text('Report venue')))
                           ],

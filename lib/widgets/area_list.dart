@@ -55,7 +55,6 @@ class AreaList extends StatelessWidget {
                                         : ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              // Report Route
                                             },
                                             child: Text('Report area')))
                           ],

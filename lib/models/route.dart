@@ -54,5 +54,6 @@ Map<String, dynamic> _RouteToJson(Route instance) => <String, dynamic>{
       'createdBy': instance.createdBy,
       'image': instance.imagePath,
       'searchField': instance.name.toLowerCase(),
+      'timestamp': FieldValue.serverTimestamp(),
       // 'searchTerms': FieldValue.arrayUnion(SearchFunctions.getSearchTerms(instance.name)),
     };

@@ -6,6 +6,7 @@ import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/home_map.dart';
 import 'package:bouldr/widgets/venue_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,6 +101,8 @@ class _HomePageState extends State<HomePage> {
             if (prefs.getString('gradingScale') == null) {
               prefs.setString('gradingScale', "v");
             }
+            SystemChrome.setPreferredOrientations(
+                [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               theme: ThemeData(

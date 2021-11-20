@@ -56,5 +56,6 @@ Map<String, dynamic> _areaToJson(Area instance) => <String, dynamic>{
       'createdBy': instance.createdBy,
       'description': instance.description,
       'searchField': instance.name.toLowerCase(),
+      'timestamp': FieldValue.serverTimestamp(),
       //'searchTerms': FieldValue.arrayUnion(SearchFunctions.getSearchTerms(instance.name)),
     };

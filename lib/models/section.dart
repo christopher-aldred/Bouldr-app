@@ -50,4 +50,5 @@ Map<String, dynamic> _SectionToJson(Section instance) => <String, dynamic>{
       'description': instance.description,
       'image': instance.imagePath,
       'searchField': instance.name.toLowerCase(),
+      'timestamp': FieldValue.serverTimestamp(),
     };

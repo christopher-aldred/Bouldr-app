@@ -18,8 +18,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<String> getGradingScale() async {
     prefs = await SharedPreferences.getInstance();
-    var defaultHomeTab = prefs.getString('gradingScale');
-    return Future.value(defaultHomeTab);
+    var scale = prefs.getString('gradingScale');
+    return Future.value(scale);
   }
 
   @override
