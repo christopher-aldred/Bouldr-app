@@ -16,6 +16,7 @@ import '../widgets/home_map.dart';
 class HomePage extends StatefulWidget {
   HomePage(BuildContext context, {Key? key}) : super(key: key);
   final DataRepository repository = DataRepository();
+  String param = "";
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -45,7 +46,17 @@ class _HomePageState extends State<HomePage> {
       case 'Add venue':
         if (AuthenticationHelper().user != null) {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => AddVenue()));
+                  context, MaterialPageRoute(builder: (context) => AddVenue()))
+              .then((value) => {
+                    /*
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage(context)))*/
+                    setState(() {
+                      widget.param = "";
+                    })
+                  });
         } else {
           Fluttertoast.showToast(
             msg: "Must be logged in to perform this action",
@@ -160,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                     body: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       children: <Widget>[
-                        HomeMapWidget(),
+                        HomeMapWidget(widget.param),
                         VenueWidget(),
                       ],
                     ),

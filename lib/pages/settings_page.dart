@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key? key}) : super(key: key);
@@ -11,13 +12,11 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   String _dropDownValue = "";
   late SharedPreferences prefs;
-
-  void getPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-  }
+  late PackageInfo packageInfo;
 
   Future<String> getGradingScale() async {
     prefs = await SharedPreferences.getInstance();
+    packageInfo = await PackageInfo.fromPlatform();
     var scale = prefs.getString('gradingScale');
     return Future.value(scale);
   }
@@ -83,6 +82,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
+              Expanded(
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Text('Version: ' + packageInfo.version))))
             ]),
           );
         });

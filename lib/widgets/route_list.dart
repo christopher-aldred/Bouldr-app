@@ -13,15 +13,19 @@ class RouteList extends StatefulWidget {
   final String sectionId;
   final db = FirebaseFirestore.instance;
   final Grade grade = Grade();
-  final Function(String) callBack;
-  RouteList(this.venueId, this.areaId, this.sectionId, this.callBack);
+  final Function(String) callBackSelectRoute;
+  final Function() callBackRefreshSection;
+
+  String selectedRouteId = "";
+
+  RouteList(this.venueId, this.areaId, this.sectionId, this.callBackSelectRoute,
+      this.callBackRefreshSection, this.selectedRouteId);
 
   @override
   _RouteListState createState() => _RouteListState();
 }
 
 class _RouteListState extends State<RouteList> {
-  int selectedIndex = 0;
   DataRepository dr = DataRepository();
   late SharedPreferences prefs;
 
@@ -72,6 +76,7 @@ class _RouteListState extends State<RouteList> {
                                                   widget.areaId,
                                                   widget.sectionId,
                                                   id);
+                                              widget.callBackRefreshSection();
                                             },
                                             child: Text('Delete route'))
                                         : ElevatedButton(
@@ -115,7 +120,7 @@ class _RouteListState extends State<RouteList> {
                     itemBuilder: (BuildContext context, int index) {
                       var route = snapshot.data!.docs[index];
                       return Card(
-                          color: index == selectedIndex
+                          color: widget.selectedRouteId == route.id
                               ? HexColor('e0e0e0')
                               : Colors.white,
                           child: ListTile(
@@ -123,7 +128,7 @@ class _RouteListState extends State<RouteList> {
                               route['name'],
                               style: TextStyle(
                                 color: Colors.black,
-                                fontWeight: index == selectedIndex
+                                fontWeight: widget.selectedRouteId == route.id
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                               ),
@@ -134,12 +139,7 @@ class _RouteListState extends State<RouteList> {
                                     prefs
                                         .getString('gradingScale')
                                         .toString())),
-                            onTap: () => {
-                              widget.callBack(route.id),
-                              setState(() {
-                                selectedIndex = index;
-                              })
-                            },
+                            onTap: () => {widget.callBackSelectRoute(route.id)},
                             onLongPress: () => {
                               optionsDialogue(
                                   id: route.id,

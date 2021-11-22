@@ -26,21 +26,13 @@ class _SectionWidgetState extends State<SectionWidget>
   Section section = Section('Loading...', '');
   List<custom_route.Route> routes = [];
   String selectedRouteImageUrl = "";
+  String selectedRouteId = "";
   int routeCount = -1;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .doc(widget.areaId)
-        .collection('sections')
-        .doc(widget.sectionId)
-        .collection('routes')
-        .get()
-        .then((routes) => {routeCount = routes.size});
+    refreshSection();
   }
 
   @override
@@ -74,12 +66,15 @@ class _SectionWidgetState extends State<SectionWidget>
         .orderBy('name')
         .get()
         .then((querySnapshot) => {
-              querySnapshot.docs.forEach((element) {
-                setState(() {
-                  routes.add(custom_route.Route.fromSnapshot(element));
-                });
-              }),
-              {selectedRouteImageUrl = routes[0].imagePath!}
+              if (querySnapshot.size > 0)
+                {
+                  querySnapshot.docs.forEach((element) {
+                    setState(() {
+                      routes.add(custom_route.Route.fromSnapshot(element));
+                    });
+                  }),
+                  {selectRoute(routes[0].referenceId!)}
+                }
             });
   }
 
@@ -89,6 +84,46 @@ class _SectionWidgetState extends State<SectionWidget>
         mSet.firstWhere((item) => item.referenceId.toString() == id.toString());
     setState(() {
       selectedRouteImageUrl = filtered.imagePath.toString();
+      selectedRouteId = id;
+    });
+  }
+
+  void refreshSection([String? displayRouteId]) {
+    setState(() {
+      FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .collection('areas')
+          .doc(widget.areaId)
+          .collection('sections')
+          .doc(widget.sectionId)
+          .collection('routes')
+          .orderBy('name')
+          .get()
+          .then((querySnapshot) => {
+                if (querySnapshot.size > 0) routes = [],
+                {
+                  querySnapshot.docs.forEach((element) {
+                    setState(() {
+                      routes.add(custom_route.Route.fromSnapshot(element));
+                    });
+                  })
+                },
+                if (displayRouteId != null)
+                  {selectRoute(displayRouteId)}
+                else
+                  {selectRoute(routes[0].referenceId!)}
+              });
+      FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .collection('areas')
+          .doc(widget.areaId)
+          .collection('sections')
+          .doc(widget.sectionId)
+          .collection('routes')
+          .get()
+          .then((routes) => {routeCount = routes.size});
     });
   }
 
@@ -189,8 +224,13 @@ class _SectionWidgetState extends State<SectionWidget>
             )),
         routeCount != 0
             ? Expanded(
-                child: RouteList(widget.venueId, widget.areaId,
-                    widget.sectionId, selectRoute))
+                child: RouteList(
+                    widget.venueId,
+                    widget.areaId,
+                    widget.sectionId,
+                    selectRoute,
+                    refreshSection,
+                    selectedRouteId))
             : Padding(
                 padding: EdgeInsets.all(5),
                 child: Text(
@@ -204,10 +244,11 @@ class _SectionWidgetState extends State<SectionWidget>
           if (AuthenticationHelper().user != null)
             {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddRoute1(
-                          widget.venueId, widget.areaId, section.referenceId!)))
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddRoute1(widget.venueId,
+                              widget.areaId, section.referenceId!)))
+                  .then((newRouteId) => {refreshSection(newRouteId)})
             }
           else
             {

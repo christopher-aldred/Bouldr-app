@@ -69,13 +69,15 @@ class DataRepository {
     await routes.doc(route.referenceId).update(route.toJson()).then((value) => {
           incrementAreaRouteCount(venueId, areaId),
           Navigator.of(context).pop(),
-          Navigator.of(context).pop(),
+          Navigator.of(context).pop(route.referenceId),
+          /*
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => AreaPage(venueId, areaId),
             ),
           )
+          */
           //newRoute.referenceId = value.id,
           //uploadImage(newRoute),
         });
