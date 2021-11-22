@@ -88,7 +88,7 @@ class _SectionWidgetState extends State<SectionWidget>
     });
   }
 
-  void refreshSection([String? displayRouteId]) {
+  void refreshSection([String? displayRouteId]) async {
     setState(() {
       selectedRouteImageUrl = "";
       FirebaseFirestore.instance
@@ -114,7 +114,7 @@ class _SectionWidgetState extends State<SectionWidget>
                       {selectRoute(routes[0].referenceId!)}
                   }
               });
-
+      /*
       FirebaseFirestore.instance
           .collection('venues')
           .doc(widget.venueId)
@@ -125,6 +125,7 @@ class _SectionWidgetState extends State<SectionWidget>
           .collection('routes')
           .get()
           .then((routes) => {routeCount = routes.size});
+          */
     });
   }
 

@@ -161,7 +161,7 @@ class _AddVenueState extends State<AddVenue> {
     final imageFuture = imageFile!.readAsBytesSync();
     var finalImage = await FlutterImageCompress.compressWithList(
       imageFuture,
-      quality: 75,
+      quality: 85,
     );
 
     Future<DocumentReference> response =

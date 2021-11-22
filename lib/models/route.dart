@@ -50,6 +50,7 @@ Route _RouteFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _RouteToJson(Route instance) => <String, dynamic>{
       'name': instance.name,
+      'description': instance.description,
       'grade': instance.grade,
       'createdBy': instance.createdBy,
       'image': instance.imagePath,

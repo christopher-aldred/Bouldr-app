@@ -38,7 +38,8 @@ class _RouteListState extends State<RouteList> {
   void optionsDialogue(
       {required String id,
       required String routeName,
-      required String createdBy}) {
+      required String createdBy,
+      required String description}) {
     FirebaseFirestore.instance
         .collection("/users")
         .doc(createdBy)
@@ -53,7 +54,12 @@ class _RouteListState extends State<RouteList> {
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Text('Created by: ' + data['displayName'])
+                            Text('Created by: ' + data['displayName']),
+                            Visibility(
+                                visible: description != "",
+                                child: Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                    child: Text('"' + description + '"'))),
                           ],
                         ),
                       );
@@ -64,6 +70,11 @@ class _RouteListState extends State<RouteList> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Text('Created by: ' + data['displayName']),
+                            Visibility(
+                                visible: description != "",
+                                child: Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                    child: Text('"' + description + '"'))),
                             Padding(
                                 padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                                 child:
@@ -148,7 +159,8 @@ class _RouteListState extends State<RouteList> {
                               optionsDialogue(
                                   id: route.id,
                                   routeName: route['name'],
-                                  createdBy: route['createdBy'])
+                                  createdBy: route['createdBy'],
+                                  description: route['description'])
                             },
                           ));
                     });
