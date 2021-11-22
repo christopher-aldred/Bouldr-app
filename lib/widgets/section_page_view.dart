@@ -19,7 +19,6 @@ class SectionPageView extends StatelessWidget {
           .collection('areas')
           .doc(areaId)
           .collection('sections')
-          .orderBy('name')
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

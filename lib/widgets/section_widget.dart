@@ -133,8 +133,8 @@ class _SectionWidgetState extends State<SectionWidget>
     super.build(context);
     return Scaffold(
       body: Column(children: <Widget>[
-        SizedBox(
-            height: MediaQuery.of(context).size.height / 2,
+        AspectRatio(
+            aspectRatio: 1,
             child: Stack(
               children: <Widget>[
                 Container(
