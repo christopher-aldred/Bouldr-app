@@ -106,7 +106,7 @@ class _VenuePageState extends State<VenuePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    var response = FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('venues')
         .doc(widget.venueId)
         .collection('areas')

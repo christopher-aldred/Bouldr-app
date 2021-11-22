@@ -75,6 +75,9 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
                                             onPressed: () {
                                               Navigator.pop(context);
                                               dr.deleteVenue(id);
+                                              setState(() {
+                                                refreshMarker();
+                                              });
                                             },
                                             child: Text('Delete venue'))
                                         : ElevatedButton(
@@ -144,6 +147,21 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
         position: location,
         onTap: () => mapItemClick(id, name, location),
       ));
+    });
+  }
+
+  void refreshMarker() {
+    allMarkers = [];
+    FirebaseFirestore.instance.collection("venues").get().then((querySnapshot) {
+      //dataRepository.venues.get().then((querySnapshot) {
+      querySnapshot.docs.forEach((result) {
+        String id = result.id;
+        String name = result["name"];
+        GeoPoint geoPoint = result["location"];
+        int venueType = result["venueType"].toInt();
+        addMapMarker(id, name, LatLng(geoPoint.latitude, geoPoint.longitude),
+            venueType, result['createdBy']);
+      });
     });
   }
 

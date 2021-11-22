@@ -1,9 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:bouldr/models/grade.dart';
-import 'package:bouldr/models/route.dart' as route;
+import 'package:bouldr/models/route.dart' as custom_route;
 import 'package:bouldr/models/section.dart';
-import 'package:bouldr/pages/area_page.dart';
 import 'package:bouldr/repository/data_repository.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -148,7 +147,7 @@ class _AddRoute2State extends State<AddRoute2> {
               visible: !saving,
               child: FloatingActionButton.extended(
                 backgroundColor: Colors.green,
-                onPressed: renderAndUpload,
+                onPressed: save,
                 label: Text('Save'),
                 icon: Icon(Icons.save),
               ),
@@ -395,7 +394,8 @@ class _AddRoute2State extends State<AddRoute2> {
     });
   }
 
-  void uploadImage(route.Route newRoute) async {
+  /*
+  void uploadImage(custom_route.Route newRoute) async {
     final backgroundImageSize = Size(
         backgroundImage!.width.toDouble(), backgroundImage!.height.toDouble());
 
@@ -435,29 +435,49 @@ class _AddRoute2State extends State<AddRoute2> {
       }
     });
   }
+  */
 
-  Future<void> renderAndUpload() async {
+  Future<void> save() async {
     if (backgroundImage == null ||
         widget.name == "" ||
         AuthenticationHelper().user == null) return;
 
     setState(() {
-      saving = true;
+      saving = true; // Displays loading symbol and prevents further submits
     });
 
-    route.Route newRoute = route.Route(
+    custom_route.Route newRoute = custom_route.Route(
         widget.name,
         widget.gradeconversion.getIndexByGrade(
             widget.grade, prefs.getString('gradingScale').toString()),
         AuthenticationHelper().user.uid,
         widget.description);
 
-    Future<DocumentReference> response =
-        dr.addRoute(widget.venueId, widget.areaId, widget.sectionId, newRoute);
+    // Getting route image
+    final backgroundImageSize = Size(
+        backgroundImage!.width.toDouble(), backgroundImage!.height.toDouble());
+    final imageFuture = controller
+        .renderImage(backgroundImageSize)
+        .then<Uint8List?>((ui.Image image) => image.pngBytes);
 
-    response.then((value) => {
-          newRoute.referenceId = value.id,
-          uploadImage(newRoute),
-        });
+    // Calling add to firestore passing route image & context
+    imageFuture.then((routeImage) async {
+      dr.addRoute(widget.venueId, widget.areaId, widget.sectionId, newRoute,
+          routeImage!, context);
+      /*
+      response.then((value) => {
+            Navigator.of(context).pop(),
+            Navigator.of(context).pop(),
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AreaPage(widget.venueId, widget.areaId),
+              ),
+            )
+            //newRoute.referenceId = value.id,
+            //uploadImage(newRoute),
+          });
+          */
+    });
   }
 }

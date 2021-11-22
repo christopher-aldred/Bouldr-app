@@ -1,13 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:io';
 import 'package:bouldr/models/venue.dart';
+import 'package:bouldr/pages/home_page.dart';
 import 'package:bouldr/pages/venue_page.dart';
 import 'package:bouldr/utils/authentication.dart';
-import 'package:bouldr/utils/hex_color.dart';
 import 'package:bouldr/widgets/map_picker.dart';
 import 'package:bouldr/repository/data_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -99,6 +98,7 @@ class _AddVenueState extends State<AddVenue> {
     _pos = await location.getLocation();
   }
 
+  /*
   void uploadImage(Venue newVenue) async {
     final imageData = imageFile!.readAsBytesSync();
 
@@ -124,6 +124,7 @@ class _AddVenueState extends State<AddVenue> {
       print(error);
     }
   }
+  */
 
   Future<void> save() async {
     if (chosenLocation == null ||
@@ -153,13 +154,17 @@ class _AddVenueState extends State<AddVenue> {
           AuthenticationHelper().user.uid, textControllerDescription.text);
     }
 
-    Future<DocumentReference> response = dr.addVenue(newVenue);
+    Future<DocumentReference> response =
+        dr.addVenue(newVenue, context, imageFile);
 
+    /*
     response.then((value) => {
           newVenue!.referenceId = value.id,
           if (imageFile == null)
             {
               Navigator.of(context).pop(),
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => HomePage(context))),
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -168,6 +173,7 @@ class _AddVenueState extends State<AddVenue> {
             },
           if (imageFile != null) {uploadImage(newVenue)},
         });
+    */
   }
 
   @override

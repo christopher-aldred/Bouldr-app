@@ -87,6 +87,7 @@ class _AddSectionState extends State<AddSection> {
     }
   }
 
+  /*
   void uploadImage(Section newSection) async {
     final imageFuture = imageFile!.readAsBytesSync();
 
@@ -121,6 +122,7 @@ class _AddSectionState extends State<AddSection> {
       print(error);
     }
   }
+  */
 
   Future<void> save() async {
     if (imageFile == null ||
@@ -134,13 +136,21 @@ class _AddSectionState extends State<AddSection> {
     Section newSection = Section(textControllerName.text,
         AuthenticationHelper().user.uid, textControllerDescription.text);
 
-    Future<DocumentReference> response =
-        dr.addSection(widget.venueId, widget.areaId, newSection);
+    final imageFuture = imageFile!.readAsBytesSync();
+    img.Image? imageTemp = img.decodeImage(imageFuture);
+    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 1500);
+    final uploadImage =
+        Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
 
+    dr.addSection(
+        widget.venueId, widget.areaId, newSection, uploadImage, context);
+
+    /*
     response.then((value) => {
           newSection.referenceId = value.id,
           uploadImage(newSection),
         });
+    */
   }
 
   @override

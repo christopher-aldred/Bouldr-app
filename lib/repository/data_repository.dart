@@ -1,14 +1,26 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:bouldr/models/area.dart';
-import 'package:bouldr/models/route.dart';
 import 'package:bouldr/models/section.dart';
+import 'package:bouldr/pages/area_page.dart';
+import 'package:bouldr/pages/venue_page.dart';
+import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+
+import 'package:bouldr/models/route.dart' as custom_route;
 
 import '../models/venue.dart';
 
 class DataRepository {
   Future<DocumentReference> addRoute(
-      String venueId, String areaId, String sectionId, Route route) {
+      String venueId,
+      String areaId,
+      String sectionId,
+      custom_route.Route route,
+      Uint8List routeImage,
+      var context) {
     final CollectionReference routes = FirebaseFirestore.instance
         .collection('venues')
         .doc(venueId)
@@ -17,20 +29,35 @@ class DataRepository {
         .collection('sections')
         .doc(sectionId)
         .collection('routes');
-    incrementAreaRouteCount(venueId, areaId);
-    return routes.add(route.toJson());
+    var result = routes.add(route.toJson());
+
+    String filePath;
+    var storageImage;
+    UploadTask task1;
+    Future<String> url;
+
+    result.then((value) async => {
+          route.referenceId = value.id,
+          filePath = "/images/" +
+              venueId +
+              "/" +
+              sectionId +
+              "/" +
+              route.referenceId.toString() +
+              ".png",
+          storageImage = FirebaseStorage.instance.ref().child(filePath),
+          task1 = storageImage.putData(routeImage),
+          url = (await task1).ref.getDownloadURL(),
+          url.then((value) => {
+                {route.imagePath = value},
+                updateRoute(venueId, areaId, sectionId, route, context)
+              })
+        });
+    return result;
   }
 
-  void addUserDisplayName(String uid, String displayName) {
-    final CollectionReference users =
-        FirebaseFirestore.instance.collection('users');
-    users.doc(uid) // <-- Document ID
-        .set({'displayName': displayName}).catchError(
-            (error) => print('Add failed: $error'));
-  }
-
-  void updateRoute(
-      String venueId, String areaId, String sectionId, Route route) async {
+  void updateRoute(String venueId, String areaId, String sectionId,
+      custom_route.Route route, var context) async {
     final CollectionReference routes = FirebaseFirestore.instance
         .collection('venues')
         .doc(venueId)
@@ -39,7 +66,19 @@ class DataRepository {
         .collection('sections')
         .doc(sectionId)
         .collection('routes');
-    await routes.doc(route.referenceId).update(route.toJson());
+    await routes.doc(route.referenceId).update(route.toJson()).then((value) => {
+          incrementAreaRouteCount(venueId, areaId),
+          Navigator.of(context).pop(),
+          Navigator.of(context).pop(),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AreaPage(venueId, areaId),
+            ),
+          )
+          //newRoute.referenceId = value.id,
+          //uploadImage(newRoute),
+        });
   }
 
   void deleteRoute(
@@ -60,18 +99,47 @@ class DataRepository {
         .doc(sectionId)
         .collection('routes');
     decrementAreaRouteCount(venueId, areaId);
-    await routes.doc(routeId).delete();
+    await routes.doc(routeId).delete().then((value) => {updateUserTimestamp()});
   }
 
-  Future<DocumentReference> addSection(
-      String venueId, String areaId, Section section) {
+  Future<DocumentReference> addSection(String venueId, String areaId,
+      Section section, Uint8List imageFile, var context) {
     final CollectionReference sections = FirebaseFirestore.instance
         .collection('venues')
         .doc(venueId)
         .collection('areas')
         .doc(areaId)
         .collection('sections');
-    return sections.add(section.toJson());
+    var result = sections.add(section.toJson());
+
+    String filePath;
+    var storageimage;
+    UploadTask task1;
+    Future<String> url;
+
+    result.then((value) async => {
+          section.referenceId = value.id,
+          filePath = "/images/" +
+              venueId +
+              "/" +
+              section.referenceId.toString() +
+              "/base_image.png",
+          storageimage = FirebaseStorage.instance.ref().child(filePath),
+          task1 = storageimage.putData(imageFile),
+          url = (await task1).ref.getDownloadURL(),
+          url.then((value) => {
+                {section.imagePath = value},
+                updateSection(venueId, areaId, section),
+                Navigator.of(context).pop(),
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AreaPage(venueId, areaId),
+                  ),
+                )
+              })
+        });
+    return result;
   }
 
   void deleteSection(String venueId, String areaId, String sectionId) async {
@@ -83,7 +151,10 @@ class DataRepository {
         .collection('areas')
         .doc(areaId)
         .collection('sections');
-    await sections.doc(sectionId).delete();
+    await sections
+        .doc(sectionId)
+        .delete()
+        .then((value) => {updateUserTimestamp()});
   }
 
   void updateSection(String venueId, String areaId, Section section) async {
@@ -93,7 +164,10 @@ class DataRepository {
         .collection('areas')
         .doc(areaId)
         .collection('sections');
-    await sections.doc(section.referenceId).update(section.toJson());
+    await sections
+        .doc(section.referenceId)
+        .update(section.toJson())
+        .then((value) => {updateUserTimestamp()});
   }
 
   Future<DocumentReference> addArea(String venueId, Area area) {
@@ -101,7 +175,9 @@ class DataRepository {
         .collection('venues')
         .doc(venueId)
         .collection('areas');
-    return sections.add(area.toJson());
+    var result = sections.add(area.toJson());
+    result.then((value) => {updateUserTimestamp()});
+    return result;
   }
 
   void updateArea(String venueId, Area area) async {
@@ -109,7 +185,11 @@ class DataRepository {
         .collection('venues')
         .doc(venueId)
         .collection('areas');
-    await areas.doc(area.referenceId).update(area.toJson());
+
+    await areas
+        .doc(area.referenceId)
+        .update(area.toJson())
+        .then((value) => {updateUserTimestamp()});
   }
 
   void deleteArea(String venueId, String areaId) async {
@@ -130,7 +210,7 @@ class DataRepository {
         .collection('venues')
         .doc(venueId)
         .collection('areas');
-    await areas.doc(areaId).delete();
+    await areas.doc(areaId).delete().then((value) => {updateUserTimestamp()});
   }
 
   void incrementAreaRouteCount(String venueId, String areaId) async {
@@ -161,16 +241,63 @@ class DataRepository {
     });
   }
 
-  Future<DocumentReference> addVenue(Venue venue) {
+  Future<DocumentReference> addVenue(Venue venue, var context,
+      [File? venueImage]) {
     final CollectionReference venues =
         FirebaseFirestore.instance.collection('venues');
-    return venues.add(venue.toJson());
+    Future<DocumentReference> result = venues.add(venue.toJson());
+
+    var imageData;
+    String filePath;
+    var storageimage;
+    UploadTask task1;
+    Future<String> url;
+
+    result.then((value) async => {
+          venue.referenceId = value.id,
+          if (venueImage == null)
+            {
+              updateVenue(venue),
+              Navigator.of(context).pop(),
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          VenuePage(venue.referenceId.toString()))),
+              //updateUserTimestamp()
+            }
+          else
+            {
+              imageData = venueImage.readAsBytesSync(),
+              filePath = "/images/" +
+                  venue.referenceId.toString() +
+                  "/venue_image.png",
+              storageimage = FirebaseStorage.instance.ref().child(filePath),
+              task1 = storageimage.putData(imageData),
+              url = (await task1).ref.getDownloadURL(),
+              url.then((value) => {
+                    {venue.imagePath = value},
+                    updateVenue(venue),
+                    Navigator.of(context).pop(),
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                VenuePage(venue.referenceId.toString()))),
+                    //updateUserTimestamp()
+                  })
+            },
+        });
+    return result;
   }
 
   void updateVenue(Venue venue) async {
     final CollectionReference venues =
         FirebaseFirestore.instance.collection('venues');
-    await venues.doc(venue.referenceId).update(venue.toJson());
+    await venues
+        .doc(venue.referenceId)
+        .update(venue.toJson())
+        .then((value) => {updateUserTimestamp()});
   }
 
   void deleteVenue(String venueId) async {
@@ -190,22 +317,41 @@ class DataRepository {
 
     final CollectionReference venues =
         FirebaseFirestore.instance.collection('venues');
-    await venues.doc(venueId).delete();
+    await venues.doc(venueId).delete().then((value) => {updateUserTimestamp()});
   }
-}
 
-void deleteFolderContents(path) {
-  var ref = FirebaseStorage.instance.ref(path);
-  ref.listAll().then((dir) => {
-        dir.items
-            .forEach((fileRef) => {deleteFile(ref.fullPath, fileRef.name)}),
-        dir.prefixes
-            .forEach((folderRef) => {deleteFolderContents(folderRef.fullPath)})
-      });
-}
+  void addUserDisplayName(String uid, String displayName) {
+    final CollectionReference users =
+        FirebaseFirestore.instance.collection('users');
+    users
+        .doc(uid) // <-- Document ID
+        .set({'displayName': displayName})
+        .catchError((error) => print('Add failed: $error'))
+        .then((value) => {updateUserTimestamp()});
+  }
 
-void deleteFile(pathToFile, fileName) {
-  var ref = FirebaseStorage.instance.ref(pathToFile);
-  var childRef = ref.child(fileName);
-  childRef.delete();
+  void updateUserTimestamp() async {
+    //await Future.delayed(Duration(seconds: 1));
+    var users = FirebaseFirestore.instance.collection('users');
+    users.doc(AuthenticationHelper().user.uid) // <-- Document ID
+        .update({
+      'lastWriteTimestamp': FieldValue.serverTimestamp()
+    }).catchError((error) => print('User timestamp update failed: $error'));
+  }
+
+  void deleteFolderContents(path) {
+    var ref = FirebaseStorage.instance.ref(path);
+    ref.listAll().then((dir) => {
+          dir.items
+              .forEach((fileRef) => {deleteFile(ref.fullPath, fileRef.name)}),
+          dir.prefixes.forEach(
+              (folderRef) => {deleteFolderContents(folderRef.fullPath)})
+        });
+  }
+
+  void deleteFile(pathToFile, fileName) {
+    var ref = FirebaseStorage.instance.ref(pathToFile);
+    var childRef = ref.child(fileName);
+    childRef.delete();
+  }
 }
