@@ -9,6 +9,7 @@ import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
@@ -138,12 +139,15 @@ class _AddSectionState extends State<AddSection> {
 
     final imageFuture = imageFile!.readAsBytesSync();
     img.Image? imageTemp = img.decodeImage(imageFuture);
-    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 1500);
-    final uploadImage =
-        Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
+    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 2500);
+    final list = Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
+    var finalImage = await FlutterImageCompress.compressWithList(
+      list,
+      quality: 75,
+    );
 
     dr.addSection(
-        widget.venueId, widget.areaId, newSection, uploadImage, context);
+        widget.venueId, widget.areaId, newSection, finalImage, context);
 
     /*
     response.then((value) => {

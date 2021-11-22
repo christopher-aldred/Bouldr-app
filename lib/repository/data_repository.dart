@@ -246,12 +246,11 @@ class DataRepository {
   }
 
   Future<DocumentReference> addVenue(Venue venue, var context,
-      [File? venueImage]) {
+      [Uint8List? venueImage]) {
     final CollectionReference venues =
         FirebaseFirestore.instance.collection('venues');
     Future<DocumentReference> result = venues.add(venue.toJson());
 
-    var imageData;
     String filePath;
     var storageimage;
     UploadTask task1;
@@ -272,12 +271,11 @@ class DataRepository {
             }
           else
             {
-              imageData = venueImage.readAsBytesSync(),
               filePath = "/images/" +
                   venue.referenceId.toString() +
                   "/venue_image.png",
               storageimage = FirebaseStorage.instance.ref().child(filePath),
-              task1 = storageimage.putData(imageData),
+              task1 = storageimage.putData(venueImage),
               url = (await task1).ref.getDownloadURL(),
               url.then((value) => {
                     {venue.imagePath = value},
