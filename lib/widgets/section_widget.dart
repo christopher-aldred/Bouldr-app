@@ -90,6 +90,7 @@ class _SectionWidgetState extends State<SectionWidget>
 
   void refreshSection([String? displayRouteId]) {
     setState(() {
+      selectedRouteImageUrl = "";
       FirebaseFirestore.instance
           .collection('venues')
           .doc(widget.venueId)
@@ -101,19 +102,19 @@ class _SectionWidgetState extends State<SectionWidget>
           .orderBy('name')
           .get()
           .then((querySnapshot) => {
-                if (querySnapshot.size > 0) routes = [],
-                {
-                  querySnapshot.docs.forEach((element) {
-                    setState(() {
+                if (querySnapshot.size > 0)
+                  {
+                    routes = [],
+                    querySnapshot.docs.forEach((element) {
                       routes.add(custom_route.Route.fromSnapshot(element));
-                    });
-                  })
-                },
-                if (displayRouteId != null)
-                  {selectRoute(displayRouteId)}
-                else
-                  {selectRoute(routes[0].referenceId!)}
+                    }),
+                    if (displayRouteId != null)
+                      {selectRoute(displayRouteId)}
+                    else
+                      {selectRoute(routes[0].referenceId!)}
+                  }
               });
+
       FirebaseFirestore.instance
           .collection('venues')
           .doc(widget.venueId)

@@ -83,7 +83,7 @@ class DataRepository {
         });
   }
 
-  void deleteRoute(
+  Future<void> deleteRoute(
       String venueId, String areaId, String sectionId, String routeId) async {
     String filePath =
         "/images/" + venueId + "/" + sectionId + "/" + routeId + ".png";
@@ -100,8 +100,10 @@ class DataRepository {
         .collection('sections')
         .doc(sectionId)
         .collection('routes');
-    decrementAreaRouteCount(venueId, areaId);
-    await routes.doc(routeId).delete().then((value) => {updateUserTimestamp()});
+    return await routes
+        .doc(routeId)
+        .delete()
+        .then((value) => {decrementAreaRouteCount(venueId, areaId)});
   }
 
   Future<DocumentReference> addSection(String venueId, String areaId,
@@ -325,11 +327,11 @@ class DataRepository {
   void addUserDisplayName(String uid, String displayName) {
     final CollectionReference users =
         FirebaseFirestore.instance.collection('users');
-    users
-        .doc(uid) // <-- Document ID
-        .set({'displayName': displayName})
-        .catchError((error) => print('Add failed: $error'))
-        .then((value) => {updateUserTimestamp()});
+    users.doc(uid) // <-- Document ID
+        .set({
+      'displayName': displayName,
+      'lastWriteTimestamp': FieldValue.serverTimestamp()
+    }).catchError((error) => print('Add failed: $error'));
   }
 
   void updateUserTimestamp() async {

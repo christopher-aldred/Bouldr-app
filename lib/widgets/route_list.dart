@@ -71,12 +71,16 @@ class _RouteListState extends State<RouteList> {
                                         ? ElevatedButton(
                                             onPressed: () {
                                               Navigator.pop(context);
-                                              dr.deleteRoute(
-                                                  widget.venueId,
-                                                  widget.areaId,
-                                                  widget.sectionId,
-                                                  id);
-                                              widget.callBackRefreshSection();
+                                              dr
+                                                  .deleteRoute(
+                                                      widget.venueId,
+                                                      widget.areaId,
+                                                      widget.sectionId,
+                                                      id)
+                                                  .then((value) => {
+                                                        widget
+                                                            .callBackRefreshSection()
+                                                      });
                                             },
                                             child: Text('Delete route'))
                                         : ElevatedButton(
