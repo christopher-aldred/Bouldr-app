@@ -139,7 +139,7 @@ class _AddSectionState extends State<AddSection> {
 
     final imageFuture = imageFile!.readAsBytesSync();
     img.Image? imageTemp = img.decodeImage(imageFuture);
-    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 2500);
+    img.Image resizedImg = img.copyResizeCropSquare(imageTemp!, 2000);
     final list = Uint8List.fromList(img.JpegEncoder().encodeImage(resizedImg));
     var finalImage = await FlutterImageCompress.compressWithList(
       list,

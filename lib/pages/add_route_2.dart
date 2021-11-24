@@ -1,6 +1,4 @@
 // ignore_for_file: prefer_const_constructors
-
-import 'package:bouldr/models/grade.dart';
 import 'package:bouldr/models/route.dart' as custom_route;
 import 'package:bouldr/models/section.dart';
 import 'package:bouldr/repository/data_repository.dart';
@@ -9,24 +7,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:flutter_painter/flutter_painter.dart';
+//import 'package:flutter_painter/flutter_painter.dart';
+import 'package:bouldr/customisations/flutter_painter/flutter_painter.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:async';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AddRoute2 extends StatefulWidget {
   final String venueId;
   final String areaId;
   final String sectionId;
-  final String name;
-  final String description;
-  final String grade;
-  final Grade gradeconversion = Grade();
+  final custom_route.Route route;
 
-  AddRoute2(this.venueId, this.areaId, this.sectionId, this.name,
-      this.description, this.grade,
-      {Key? key})
+  AddRoute2(this.venueId, this.areaId, this.sectionId, this.route, {Key? key})
       : super(key: key);
 
   @override
@@ -46,13 +38,7 @@ class _AddRoute2State extends State<AddRoute2> {
 
   bool saving = false;
 
-  late SharedPreferences prefs;
-
-  Future<String> getGradingScale() async {
-    prefs = await SharedPreferences.getInstance();
-    var defaultHomeTab = prefs.getString('gradingScale');
-    return Future.value(defaultHomeTab);
-  }
+  int venueType = 0;
 
   @override
   void initState() {
@@ -83,14 +69,58 @@ class _AddRoute2State extends State<AddRoute2> {
                   fontWeight: FontWeight.bold, color: yellow, fontSize: 18),
             ),
             freeStyle: FreeStyleSettings(
-              enabled: false,
-              color: yellow,
-              strokeWidth: 3,
+              enabled: true,
+              color: red,
+              strokeWidth: 2,
             )));
     // Listen to focus events of the text field
     textFocusNode.addListener(onFocus);
     // Initialize background
-    toggleFreeStyle();
+    //toggleFreeStyle();
+
+    FirebaseFirestore.instance
+        .collection('venues')
+        .doc(widget.venueId)
+        .get()
+        .then((data) => {
+              if (data['venueType'] == 1)
+                {
+                  venueType = 1,
+                  controller = PainterController(
+                      settings: PainterSettings(
+                          text: TextSettings(
+                            focusNode: textFocusNode,
+                            textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow,
+                                fontSize: 18),
+                          ),
+                          freeStyle: FreeStyleSettings(
+                            indoorMode: true,
+                            enabled: true,
+                            color: red,
+                            strokeWidth: 2,
+                          )))
+                }
+              else
+                {
+                  controller = PainterController(
+                      settings: PainterSettings(
+                          text: TextSettings(
+                            focusNode: textFocusNode,
+                            textStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellow,
+                                fontSize: 18),
+                          ),
+                          freeStyle: FreeStyleSettings(
+                            indoorMode: false,
+                            enabled: true,
+                            color: red,
+                            strokeWidth: 2,
+                          )))
+                }
+            });
   }
 
   void initBackground() async {
@@ -108,96 +138,99 @@ class _AddRoute2State extends State<AddRoute2> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-        future: getGradingScale(),
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            appBar: AppBar(
-              backgroundColor: Colors.green,
-              title: Text("Add route"),
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.undo,
-                  ),
-                  onPressed: removeLastDrawable,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.gesture,
-                    color: controller.freeStyleSettings.enabled
-                        ? Colors.black
-                        : null,
-                  ),
-                  onPressed: toggleFreeStyle,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.zoom_in,
-                    color: controller.freeStyleSettings.enabled != true
-                        ? Colors.black
-                        : null,
-                  ),
-                  onPressed: zoomScreen,
-                )
-              ],
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text("Add route"),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.undo,
             ),
-            floatingActionButton: Visibility(
-              visible: !saving,
-              child: FloatingActionButton.extended(
-                backgroundColor: Colors.green,
-                onPressed: save,
-                label: Text('Save'),
-                icon: Icon(Icons.save),
-              ),
+            onPressed: removeLastDrawable,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.gesture,
+              color: controller.freeStyleSettings.enabled ? Colors.black : null,
             ),
-            body: Stack(
-              children: <Widget>[
-                Column(
-                  children: [
-                    if (backgroundImage != null)
-                      // Enforces constraints
-                      AspectRatio(
-                          aspectRatio:
-                              backgroundImage!.width / backgroundImage!.height,
-                          child: InteractiveViewer(
-                            panEnabled: true, // Set it to false
-                            minScale: 1,
-                            maxScale: 4,
-                            child: FlutterPainter(
-                              controller: controller,
-                            ),
-                          )),
-                    Row(children: <Widget>[
-                      Expanded(
-                        child: Container(
-                            margin:
-                                const EdgeInsets.only(left: 10.0, right: 20.0),
-                            child: Divider(
-                              color: Colors.black,
-                              height: 36,
-                            )),
-                      ),
-                      Text("Line width", style: TextStyle(fontSize: 20)),
-                      Expanded(
-                        child: Container(
-                            margin:
-                                const EdgeInsets.only(left: 20.0, right: 10.0),
-                            child: Divider(
-                              color: Colors.black,
-                              height: 36,
-                            )),
-                      ),
-                    ]),
-                    // Control free style stroke width
-                    Slider.adaptive(
-                        min: 2,
-                        max: 15,
-                        value: controller.freeStyleSettings.strokeWidth,
-                        onChanged: setFreeStyleStrokeWidth),
+            onPressed: toggleFreeStyle,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.zoom_in,
+              color: controller.freeStyleSettings.enabled != true
+                  ? Colors.black
+                  : null,
+            ),
+            onPressed: zoomScreen,
+          )
+        ],
+      ),
+      floatingActionButton: Visibility(
+        visible: !saving,
+        child: FloatingActionButton.extended(
+          backgroundColor: Colors.green,
+          onPressed: save,
+          label: Text('Save'),
+          icon: Icon(Icons.save),
+        ),
+      ),
+      body: Stack(
+        children: <Widget>[
+          Column(
+            children: [
+              // Enforces constraints
+              Stack(children: <Widget>[
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.grey),
+                  ),
+                ),
+                if (backgroundImage != null)
+                  AspectRatio(
+                      aspectRatio:
+                          backgroundImage!.width / backgroundImage!.height,
+                      child: InteractiveViewer(
+                        panEnabled: true,
+                        minScale: 1,
+                        maxScale: 4,
+                        child: FlutterPainter(
+                          controller: controller,
+                        ),
+                      ))
+              ]),
 
-                    /*
+              Row(children: <Widget>[
+                Expanded(
+                  child: Container(
+                      margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                      child: Divider(
+                        color: Colors.black,
+                        height: 36,
+                      )),
+                ),
+                Text("Line width", style: TextStyle(fontSize: 20)),
+                Expanded(
+                  child: Container(
+                      margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                      child: Divider(
+                        color: Colors.black,
+                        height: 36,
+                      )),
+                ),
+              ]),
+              // Control free style stroke width
+              Slider.adaptive(
+                  min: 2,
+                  max: 8,
+                  value: controller.freeStyleSettings.strokeWidth,
+                  onChanged: setFreeStyleStrokeWidth),
+
+              /*
             // Control free style color hue
             Slider.adaptive(
                 min: 0,
@@ -208,128 +241,125 @@ class _AddRoute2State extends State<AddRoute2> {
                 onChanged: setFreeStyleColor),
                 */
 
-                    Row(children: <Widget>[
-                      Expanded(
-                        child: Container(
-                            margin:
-                                const EdgeInsets.only(left: 10.0, right: 20.0),
-                            child: Divider(
-                              color: Colors.black,
-                              height: 36,
-                            )),
-                      ),
-                      Text("Holds", style: TextStyle(fontSize: 20)),
-                      Expanded(
-                        child: Container(
-                            margin:
-                                const EdgeInsets.only(left: 20.0, right: 10.0),
-                            child: Divider(
-                              color: Colors.black,
-                              height: 36,
-                            )),
-                      ),
-                    ]),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                              padding: EdgeInsets.all(5),
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    setFreeStyleColor(195);
-                                    brushModeOn();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.blue,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                    ),
-                                  ),
-                                  child: Text('Start'))),
-                          Padding(
-                              padding: EdgeInsets.all(5),
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    setFreeStyleColor(60);
-                                    brushModeOn();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.yellow,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                    ),
-                                  ),
-                                  child: Text('Hand',
-                                      style: TextStyle(color: Colors.black)))),
-                          Padding(
-                              padding: EdgeInsets.all(5),
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    setFreeStyleColor(345);
-                                    brushModeOn();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.red,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                    ),
-                                  ),
-                                  child: Text('Foot'))),
-                          Padding(
-                              padding: EdgeInsets.all(5),
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    setFreeStyleColor(105);
-                                    brushModeOn();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.green,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                    ),
-                                  ),
-                                  child: Text('Finish'))),
-                        ]),
-                    if (textFocusNode.hasFocus) ...[
-                      // Control text font size
-                      Slider.adaptive(
-                          min: 12,
-                          max: 48,
-                          value:
-                              controller.textSettings.textStyle.fontSize ?? 14,
-                          onChanged: setTextFontSize),
-
-                      // Control text color hue
-                      Slider.adaptive(
-                          min: 0,
-                          max: 359.99,
-                          value: HSVColor.fromColor(
-                                  controller.textSettings.textStyle.color ??
-                                      red)
-                              .hue,
-                          activeColor: controller.textSettings.textStyle.color,
-                          onChanged: setTextColor),
-                    ]
-                  ],
-                ),
-                Visibility(
-                    visible: saving,
+              if (venueType == 1)
+                Row(children: <Widget>[
+                  Expanded(
                     child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      color: Colors.black.withOpacity(0.75),
-                      child: SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Center(
-                          child: CircularProgressIndicator(color: Colors.grey),
-                        ),
-                      ),
-                    )),
-              ],
-            ),
-          );
-        });
+                        margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                        child: Divider(
+                          color: Colors.black,
+                          height: 36,
+                        )),
+                  ),
+                  Text("Holds", style: TextStyle(fontSize: 20)),
+                  Expanded(
+                    child: Container(
+                        margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                        child: Divider(
+                          color: Colors.black,
+                          height: 36,
+                        )),
+                  ),
+                ]),
+              if (venueType == 1)
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                setFreeStyleColor(195);
+                                brushModeOn();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                              child: Text('Start'))),
+                      Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                setFreeStyleColor(60);
+                                brushModeOn();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.yellow,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                              child: Text('Hand',
+                                  style: TextStyle(color: Colors.black)))),
+                      Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                setFreeStyleColor(345);
+                                brushModeOn();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                              child: Text('Foot'))),
+                      Padding(
+                          padding: EdgeInsets.all(5),
+                          child: ElevatedButton(
+                              onPressed: () {
+                                setFreeStyleColor(105);
+                                brushModeOn();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                              child: Text('Finish'))),
+                    ]),
+              if (textFocusNode.hasFocus) ...[
+                // Control text font size
+                Slider.adaptive(
+                    min: 12,
+                    max: 48,
+                    value: controller.textSettings.textStyle.fontSize ?? 14,
+                    onChanged: setTextFontSize),
+
+                // Control text color hue
+                Slider.adaptive(
+                    min: 0,
+                    max: 359.99,
+                    value: HSVColor.fromColor(
+                            controller.textSettings.textStyle.color ?? red)
+                        .hue,
+                    activeColor: controller.textSettings.textStyle.color,
+                    onChanged: setTextColor),
+              ]
+            ],
+          ),
+          Visibility(
+              visible: saving,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                color: Colors.black.withOpacity(0.75),
+                child: SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.grey),
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
   }
 
   void removeLastDrawable() {
@@ -438,20 +468,20 @@ class _AddRoute2State extends State<AddRoute2> {
   */
 
   Future<void> save() async {
-    if (backgroundImage == null ||
-        widget.name == "" ||
-        AuthenticationHelper().user == null) return;
+    if (backgroundImage == null || AuthenticationHelper().user == null) return;
 
     setState(() {
       saving = true; // Displays loading symbol and prevents further submits
     });
 
+    /*
     custom_route.Route newRoute = custom_route.Route(
-        widget.name,
-        widget.gradeconversion.getIndexByGrade(
+        name: widget.name,
+        grade: widget.gradeconversion.getIndexByGrade(
             widget.grade, prefs.getString('gradingScale').toString()),
-        AuthenticationHelper().user.uid,
-        widget.description);
+        createdBy: AuthenticationHelper().user.uid,
+        description: widget.description);
+    */
 
     // Getting route image
     final backgroundImageSize = Size(
@@ -462,7 +492,7 @@ class _AddRoute2State extends State<AddRoute2> {
 
     // Calling add to firestore passing route image & context
     imageFuture.then((routeImage) async {
-      dr.addRoute(widget.venueId, widget.areaId, widget.sectionId, newRoute,
+      dr.addRoute(widget.venueId, widget.areaId, widget.sectionId, widget.route,
           routeImage!, context);
       /*
       response.then((value) => {

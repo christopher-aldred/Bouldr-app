@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
 import 'package:bouldr/repository/data_repository.dart';
 import 'package:bouldr/utils/authentication.dart';
-import 'package:bouldr/utils/hex_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/grade.dart';
+import '../customisations/expansion_panel.dart' as custom_expansion_panel;
 
 class RouteList extends StatefulWidget {
   final String venueId;
@@ -35,6 +35,25 @@ class _RouteListState extends State<RouteList> {
     return Future.value(defaultHomeTab);
   }
 
+  Color getRouteColorByGrade(int grade) {
+    if (grade <= 2) {
+      return Colors.green;
+    }
+    if (grade > 2 && grade <= 4) {
+      return Colors.yellow;
+    }
+    if (grade > 4 && grade <= 10) {
+      return Colors.orange;
+    }
+    if (grade > 10 && grade <= 16) {
+      return Colors.red;
+    }
+    if (grade > 16) {
+      return Colors.black;
+    }
+    return Colors.white;
+  }
+
   void optionsDialogue(
       {required String id,
       required String routeName,
@@ -54,12 +73,7 @@ class _RouteListState extends State<RouteList> {
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Text('Created by: ' + data['displayName']),
-                            Visibility(
-                                visible: description != "",
-                                child: Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                                    child: Text('"' + description + '"'))),
+                            Text('Created by: ' + data['displayName'])
                           ],
                         ),
                       );
@@ -70,11 +84,6 @@ class _RouteListState extends State<RouteList> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Text('Created by: ' + data['displayName']),
-                            Visibility(
-                                visible: description != "",
-                                child: Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
-                                    child: Text('"' + description + '"'))),
                             Padding(
                                 padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                                 child:
@@ -129,7 +138,123 @@ class _RouteListState extends State<RouteList> {
                   child: CircularProgressIndicator(),
                 );
               } else {
-                return ListView.builder(
+                return ListView(children: <Widget>[
+                  Builder(builder: (BuildContext context) {
+                    List<custom_expansion_panel.ExpansionPanel> panels = [];
+
+                    for (int i = 0; i < snapshot.data!.docs.length; i++) {
+                      var route = snapshot.data!.docs[i];
+                      panels.add(custom_expansion_panel.ExpansionPanel(
+                        isExpanded: widget.selectedRouteId == route.id,
+                        hasIcon: false,
+                        headerBuilder:
+                            (BuildContext context, bool isExpanded) => ListTile(
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        color: getRouteColorByGrade(
+                                            route['grade']),
+                                        border: Border.all(
+                                          color: getRouteColorByGrade(
+                                              route['grade']),
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5))),
+                                    child: Text(
+                                        widget.grade.getGradeByIndex(
+                                            route['grade'],
+                                            prefs
+                                                .getString('gradingScale')
+                                                .toString()),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold))),
+                              )
+                            ],
+                          ),
+                          trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Visibility(
+                                          visible: route['dyno'] == true,
+                                          child: Image(
+                                              height: 30,
+                                              width: 30,
+                                              image: AssetImage(
+                                                  'assets/images/dyno.png'))),
+                                      Visibility(
+                                          visible: route['crimpy'] == true,
+                                          child: Image(
+                                              height: 30,
+                                              width: 30,
+                                              image: AssetImage(
+                                                  'assets/images/crimp.png'))),
+                                      Visibility(
+                                          visible: route['sitStart'] == true,
+                                          child: Image(
+                                              height: 30,
+                                              width: 30,
+                                              image: AssetImage(
+                                                  'assets/images/sit_start.png'))),
+                                      Visibility(
+                                          visible: route['jam'] == true,
+                                          child: Image(
+                                              height: 30,
+                                              width: 30,
+                                              image: AssetImage(
+                                                  'assets/images/jam.png'))),
+                                    ])
+                              ]),
+                          onTap: () => {widget.callBackSelectRoute(route.id)},
+                          onLongPress: () => {
+                            optionsDialogue(
+                                id: route.id,
+                                routeName: route['name'],
+                                createdBy: route['createdBy'],
+                                description: route['description'])
+                          },
+                          //leading: Icon(FontAwesomeIcons.bookmark),
+                          title: Align(
+                            child: new Text(
+                              route['name'],
+                              style: TextStyle(
+                                  color: widget.selectedRouteId == route.id
+                                      ? Colors.green
+                                      : Colors.black,
+                                  fontWeight: widget.selectedRouteId == route.id
+                                      ? FontWeight.bold
+                                      : FontWeight.normal),
+                            ),
+                            alignment: Alignment(-1.1, 0),
+                          ),
+                        ),
+                        body: ListTile(
+                          title: Text(
+                            route['description'],
+                          ),
+                        ),
+                      ));
+                    }
+
+                    return custom_expansion_panel.ExpansionPanelList(
+                      children: panels,
+                      expandedHeaderPadding: EdgeInsets.all(0),
+                    );
+                  })
+                ]);
+                /*
+                ListView.builder(
                     padding: EdgeInsets.all(0.0),
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (BuildContext context, int index) {
@@ -164,6 +289,7 @@ class _RouteListState extends State<RouteList> {
                             },
                           ));
                     });
+                    */
               }
             },
           );

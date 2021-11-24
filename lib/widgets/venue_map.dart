@@ -118,6 +118,8 @@ class _VenueMapState extends State<VenueMap> {
           ),
         ),
         body: MapboxMap(
+            myLocationEnabled: true,
+            compassEnabled: true,
             onMapCreated: _onMapCreated,
             onStyleLoadedCallback: _onStyleLoaded,
             accessToken:
