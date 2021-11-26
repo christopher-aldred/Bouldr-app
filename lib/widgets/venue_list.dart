@@ -19,7 +19,6 @@ class VenueList extends StatefulWidget {
 
 class _VenueListState extends State<VenueList>
     with AutomaticKeepAliveClientMixin {
-  final TextEditingController textController = TextEditingController();
   final Location location = Location();
   DataRepository dr = DataRepository();
 
@@ -112,8 +111,8 @@ class _VenueListState extends State<VenueList>
             currentLat = snapshot.data!.latitude!;
             currentLong = snapshot.data!.longitude!;
           } else {
-            currentLat = 99;
-            currentLong = 99;
+            currentLat = -1;
+            currentLong = -1;
           }
           return StreamBuilder<QuerySnapshot>(
             stream: widget.searchText == null
@@ -138,7 +137,7 @@ class _VenueListState extends State<VenueList>
                   children: snapshot.data!.docs.map((doc) {
                     double distance = 0.0;
                     GeoPoint venueLocation = doc['location'];
-                    if (currentLat != 99) {
+                    if (currentLat != -1) {
                       distance = calculateDistance(currentLat, currentLong,
                           venueLocation.latitude, venueLocation.longitude);
                     }

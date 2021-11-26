@@ -251,7 +251,8 @@ class _RouteListState extends State<RouteList> {
                       children: panels,
                       expandedHeaderPadding: EdgeInsets.all(0),
                     );
-                  })
+                  }),
+                  SizedBox(height: 80),
                 ]);
                 /*
                 ListView.builder(

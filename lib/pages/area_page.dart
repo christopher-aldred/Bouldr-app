@@ -24,6 +24,18 @@ class _AreaPageState extends State<AreaPage> {
   DataRepository dataRepository = DataRepository();
   int sectionCount = -1;
 
+  void showInfoDialogue() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Information'),
+            content: Text(
+                'Red dashed line = outdoor route\n\nBlue = start holds\nRed = foot holds\nYellow = hand holds\nGreen = finishing holds'),
+          );
+        });
+  }
+
   void handleActions(String value) {
     switch (value) {
       case 'Add section':
@@ -84,6 +96,13 @@ class _AreaPageState extends State<AreaPage> {
         appBar: AppBar(
           title: Text(area.name),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              onPressed: showInfoDialogue,
+            ),
             PopupMenuButton<String>(
               onSelected: (handleActions),
               itemBuilder: (BuildContext context) {

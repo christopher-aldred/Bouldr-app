@@ -222,27 +222,29 @@ class _VenuePageState extends State<VenuePage> {
             ),
           ),
         ),
-        body: Column(
+        body: SingleChildScrollView(
+            child: Column(
           children: [
             PhotoGradient(venue.name, venue.description.toString(),
                 venue.imagePath.toString()),
             Visibility(
               visible: !noRoutes(),
               child: Padding(
-                  padding: EdgeInsets.all(0),
-                  child: AspectRatio(
-                    aspectRatio: 3,
+                padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 4,
+                    width: double.infinity,
                     child: Card(
-                      elevation: 0,
+                      elevation: 1,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
-                      color: Colors.transparent,
+                      color: Colors.white,
                       child: GradeBarChart(gradeCount),
-                    ),
-                  )),
+                    )),
+              ),
             ),
             areaCount != 0
-                ? Expanded(child: AreaList(venue.referenceId.toString()))
+                ? AreaList(venue.referenceId.toString())
                 : Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
@@ -278,7 +280,7 @@ class _VenuePageState extends State<VenuePage> {
                     ),
                   ),
           ],
-        ),
+        )),
         floatingActionButton: Visibility(
           visible: venue.venueType == 0 ? true : false,
           child: FloatingActionButton.extended(

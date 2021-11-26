@@ -82,6 +82,8 @@ class AreaList extends StatelessWidget {
           );
         } else {
           return ListView(
+            primary: false,
+            shrinkWrap: true,
             children: snapshot.data!.docs.map((area) {
               //print(snapshot.data!.docs.length);
               return Card(
