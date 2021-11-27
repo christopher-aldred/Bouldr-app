@@ -5,19 +5,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 
-class SectionPageView extends StatelessWidget {
+class SectionPageView extends StatefulWidget {
   final String venueId;
   final String areaId;
-  final db = FirebaseFirestore.instance;
-  SectionPageView(this.venueId, this.areaId);
+  String? sectionId;
+  String? routeId;
+
+  SectionPageView(this.venueId, this.areaId, {this.sectionId, this.routeId});
+
+  @override
+  _SectionPageViewState createState() => _SectionPageViewState();
+}
+
+class _SectionPageViewState extends State<SectionPageView> {
+  late PreloadPageController? controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = PreloadPageController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: db
+      stream: FirebaseFirestore.instance
           .collection('venues')
-          .doc(venueId)
+          .doc(widget.venueId)
           .collection('areas')
-          .doc(areaId)
+          .doc(widget.areaId)
           .collection('sections')
           .snapshots(),
       builder: (context, snapshot) {
@@ -27,7 +43,17 @@ class SectionPageView extends StatelessWidget {
           );
         } else {
           return PreloadPageView.builder(
+            controller: controller,
             itemBuilder: (context, position) {
+              if (widget.sectionId != null) {
+                if (widget.sectionId == snapshot.data!.docs[position].id) {
+                  Future.delayed(Duration(milliseconds: 100), () {
+                    controller!.animateToPage(position,
+                        duration: Duration(milliseconds: 400),
+                        curve: Curves.ease);
+                  });
+                }
+              }
               return Column(children: [
                 Padding(
                   padding: EdgeInsets.all(5),
@@ -40,10 +66,11 @@ class SectionPageView extends StatelessWidget {
                 ),
                 Expanded(
                     child: SectionWidget(
-                  venueId,
-                  areaId,
+                  widget.venueId,
+                  widget.areaId,
                   snapshot.data!.docs[position].id.toString(),
-                ))
+                  routeId: widget.routeId,
+                )),
               ]);
             },
             itemCount: snapshot.data!.docs.length, // Can be null

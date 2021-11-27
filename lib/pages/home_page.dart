@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new, prefer_const_literals_to_create_immutables, avoid_function_literals_in_foreach_calls
 
 import 'package:bouldr/pages/add_venue.dart';
+import 'package:bouldr/pages/area_page.dart';
 import 'package:bouldr/pages/settings_page.dart';
+import 'package:bouldr/pages/venue_page.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/home_map.dart';
 import 'package:bouldr/widgets/venue_widget.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -24,6 +27,97 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late SharedPreferences prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    this.initDynamicLinks();
+  }
+
+  void handleDeeplink(Uri deepLink) async {
+    String? venueId;
+    String? areaId;
+    String? sectionId;
+    String? routeId;
+
+    deepLink.queryParameters.forEach((key, value) {
+      if (key == "venue") {
+        venueId = value;
+      } else if (key == "area") {
+        areaId = value;
+      } else if (key == "section") {
+        sectionId = value;
+      } else if (key == "route") {
+        routeId = value;
+      }
+    });
+
+    if (venueId != null) {
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => HomePage(context)),
+          (Route<dynamic> route) => false);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VenuePage(venueId!),
+        ),
+      );
+    }
+
+    if (areaId != null && sectionId == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AreaPage(venueId!, areaId!),
+        ),
+      );
+    }
+
+    if (areaId != null && sectionId != null && routeId == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              AreaPage(venueId!, areaId!, sectionId: sectionId!),
+        ),
+      );
+    }
+
+    if (areaId != null && sectionId != null && routeId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AreaPage(venueId!, areaId!,
+              sectionId: sectionId!, routeId: routeId!),
+        ),
+      );
+    }
+  }
+
+  void initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+      final Uri? deepLink = dynamicLink?.link;
+
+      if (deepLink != null) {
+        //Navigator.pushNamed(context, deepLink.path);
+        handleDeeplink(deepLink);
+      }
+    }, onError: (OnLinkErrorException e) async {
+      print('onLinkError');
+      print(e.message);
+    });
+
+    final PendingDynamicLinkData? data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri? deepLink = data?.link;
+
+    if (deepLink != null) {
+      //Navigator.pushNamed(context, deepLink.path);
+      handleDeeplink(deepLink);
+    }
+  }
 
   Future<int> getDefaultTab() async {
     prefs = await SharedPreferences.getInstance();

@@ -14,8 +14,8 @@ class SectionWidget extends StatefulWidget {
   final String venueId;
   final String areaId;
   final String sectionId;
-  const SectionWidget(this.venueId, this.areaId, this.sectionId, {Key? key})
-      : super(key: key);
+  String? routeId;
+  SectionWidget(this.venueId, this.areaId, this.sectionId, {this.routeId});
 
   @override
   _SectionWidgetState createState() => _SectionWidgetState();
@@ -32,7 +32,7 @@ class _SectionWidgetState extends State<SectionWidget>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    refreshSection();
+    refreshSection(widget.routeId);
   }
 
   @override
@@ -72,8 +72,7 @@ class _SectionWidgetState extends State<SectionWidget>
                     setState(() {
                       routes.add(custom_route.Route.fromSnapshot(element));
                     });
-                  }),
-                  {selectRoute(routes[0].referenceId!)}
+                  })
                 }
             });
   }
@@ -82,6 +81,8 @@ class _SectionWidgetState extends State<SectionWidget>
     Set<custom_route.Route> mSet = routes.toSet();
     custom_route.Route filtered =
         mSet.firstWhere((item) => item.referenceId.toString() == id.toString());
+    //print(filtered.toString());
+
     setState(() {
       selectedRouteImageUrl = filtered.imagePath.toString();
       selectedRouteId = id;

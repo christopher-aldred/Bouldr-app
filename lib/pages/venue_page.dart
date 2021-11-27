@@ -230,15 +230,15 @@ class _VenuePageState extends State<VenuePage> {
             Visibility(
               visible: !noRoutes(),
               child: Padding(
-                padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                padding: EdgeInsets.all(0),
                 child: SizedBox(
                     height: MediaQuery.of(context).size.height / 4,
                     width: double.infinity,
                     child: Card(
-                      elevation: 1,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
-                      color: Colors.white,
+                      color: Colors.transparent,
                       child: GradeBarChart(gradeCount),
                     )),
               ),

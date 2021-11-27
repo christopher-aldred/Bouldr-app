@@ -13,7 +13,9 @@ import '../repository/data_repository.dart';
 class AreaPage extends StatefulWidget {
   final String areaId;
   final String venueId;
-  const AreaPage(this.venueId, this.areaId, {Key? key}) : super(key: key);
+  late String? sectionId;
+  late String? routeId;
+  AreaPage(this.venueId, this.areaId, {this.sectionId, this.routeId});
 
   @override
   _AreaPageState createState() => _AreaPageState();
@@ -23,6 +25,20 @@ class _AreaPageState extends State<AreaPage> {
   Area area = Area("Loading...", LatLng(999, 999), 0, "");
   DataRepository dataRepository = DataRepository();
   int sectionCount = -1;
+
+  SectionPageView getSectionPageView() {
+    if (widget.sectionId == null) {
+      return SectionPageView(widget.venueId, widget.areaId);
+    } else {
+      if (widget.routeId == null) {
+        return SectionPageView(widget.venueId, widget.areaId,
+            sectionId: widget.sectionId);
+      } else {
+        return SectionPageView(widget.venueId, widget.areaId,
+            sectionId: widget.sectionId, routeId: widget.routeId);
+      }
+    }
+  }
 
   void showInfoDialogue() {
     showDialog(
@@ -129,7 +145,7 @@ class _AreaPageState extends State<AreaPage> {
           ),
         ),
         body: sectionCount != 0
-            ? SectionPageView(widget.venueId, widget.areaId)
+            ? getSectionPageView()
             : Padding(
                 padding: EdgeInsets.all(10),
                 child: Center(

@@ -2,10 +2,12 @@
 import 'package:bouldr/repository/data_repository.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/grade.dart';
 import '../customisations/expansion_panel.dart' as custom_expansion_panel;
+import 'package:share/share.dart';
 
 class RouteList extends StatefulWidget {
   final String venueId;
@@ -54,6 +56,37 @@ class _RouteListState extends State<RouteList> {
     return Colors.white;
   }
 
+  void shareDynamicLink(String id, String name) async {
+    String url = 'https://bouldr.page.link.com/?venue=' +
+        widget.venueId +
+        '&area=' +
+        widget.areaId +
+        '&section=' +
+        widget.sectionId +
+        '&route=' +
+        id;
+
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://bouldr.page.link',
+      link: Uri.parse(url),
+      androidParameters: AndroidParameters(
+        packageName: 'com.credible.bouldr',
+        minimumVersion: 1,
+      ),
+      /*
+      iosParameters: IosParameters(
+          bundleId: 'your_ios_bundle_identifier',
+          minimumVersion: '1',
+          appStoreId: 'your_app_store_id',
+        ),
+        */
+    );
+    var dynamicUrl = parameters.buildShortLink();
+    //final Uri shortUrl = dynamicUrl.shortUrl;
+
+    dynamicUrl.then((value) => {Share.share(value.shortUrl.toString())});
+  }
+
   void optionsDialogue(
       {required String id,
       required String routeName,
@@ -73,7 +106,15 @@ class _RouteListState extends State<RouteList> {
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Text('Created by: ' + data['displayName'])
+                            Text('Created by: ' + data['displayName']),
+                            Padding(
+                                padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      shareDynamicLink(id, routeName);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Share route')))
                           ],
                         ),
                       );
@@ -107,7 +148,15 @@ class _RouteListState extends State<RouteList> {
                                             onPressed: () {
                                               Navigator.pop(context);
                                             },
-                                            child: Text('Report route')))
+                                            child: Text('Report route'))),
+                            Padding(
+                                padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      shareDynamicLink(id, routeName);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Share route')))
                           ],
                         ),
                       );

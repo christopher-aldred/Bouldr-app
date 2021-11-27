@@ -35,6 +35,10 @@ class _AddAreaState extends State<AddArea> {
   }
 
   Future<void> save() async {
+    if (widget.venue.venueType == 1) {
+      location = widget.venue.location;
+    }
+
     if (location == null ||
         textControllerName.text == "" ||
         AuthenticationHelper().user == null) return;
@@ -127,29 +131,31 @@ class _AddAreaState extends State<AddArea> {
                       ),
                       onSubmitted: (text) => {}),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: SizedBox(
-                      width: double.infinity, // <-- match_parent
-                      child: ElevatedButton(
-                        child: Text('Set location'),
-                        onPressed: () => {
-                          FocusScope.of(context).unfocus(),
-                          Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MapPicker(
-                                            widget.venue.location.latitude,
-                                            widget.venue.location.longitude,
-                                          )))
-                              .then((value) => {location = value as LatLng})
-                        },
-                        style: ElevatedButton.styleFrom(
-                            primary: Colors.green,
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            textStyle: TextStyle(fontSize: 20)),
-                      )),
-                ),
+                Visibility(
+                    visible: widget.venue.venueType == 0,
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: SizedBox(
+                          width: double.infinity, // <-- match_parent
+                          child: ElevatedButton(
+                            child: Text('Set location'),
+                            onPressed: () => {
+                              FocusScope.of(context).unfocus(),
+                              Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => MapPicker(
+                                                widget.venue.location.latitude,
+                                                widget.venue.location.longitude,
+                                              )))
+                                  .then((value) => {location = value as LatLng})
+                            },
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.green,
+                                padding: EdgeInsets.symmetric(vertical: 15),
+                                textStyle: TextStyle(fontSize: 20)),
+                          )),
+                    )),
               ],
             ),
             Visibility(
@@ -173,7 +179,9 @@ class _AddAreaState extends State<AddArea> {
           child: FloatingActionButton.extended(
             backgroundColor: Colors.green,
             onPressed: () => {
-              if (textControllerName.text != "" && location != null)
+              if ((textControllerName.text != "" && location != null) ||
+                  (textControllerName.text != "" &&
+                      widget.venue.venueType == 1))
                 {save()}
               else
                 {
