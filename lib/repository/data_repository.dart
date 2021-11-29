@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:bouldr/models/area.dart';
 import 'package:bouldr/models/section.dart';

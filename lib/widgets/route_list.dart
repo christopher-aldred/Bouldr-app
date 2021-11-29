@@ -9,6 +9,7 @@ import '../models/grade.dart';
 import '../customisations/expansion_panel.dart' as custom_expansion_panel;
 import 'package:share/share.dart';
 
+// ignore: must_be_immutable
 class RouteList extends StatefulWidget {
   final String venueId;
   final String areaId;
@@ -84,7 +85,13 @@ class _RouteListState extends State<RouteList> {
     var dynamicUrl = parameters.buildShortLink();
     //final Uri shortUrl = dynamicUrl.shortUrl;
 
-    dynamicUrl.then((value) => {Share.share(value.shortUrl.toString())});
+    dynamicUrl.then((value) => {
+          Share.share("I've shared a Bouldr route with you 🧗🏼‍♀️\n\n" +
+              "Route name - " +
+              name +
+              "\n\n" +
+              value.shortUrl.toString())
+        });
   }
 
   void optionsDialogue(
@@ -292,6 +299,13 @@ class _RouteListState extends State<RouteList> {
                           title: Text(
                             route['description'],
                           ),
+                          onLongPress: () => {
+                            optionsDialogue(
+                                id: route.id,
+                                routeName: route['name'],
+                                createdBy: route['createdBy'],
+                                description: route['description'])
+                          },
                         ),
                       ));
                     }

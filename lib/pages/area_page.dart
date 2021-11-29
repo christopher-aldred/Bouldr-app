@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../repository/data_repository.dart';
 
+// ignore: must_be_immutable
 class AreaPage extends StatefulWidget {
   final String areaId;
   final String venueId;
@@ -47,7 +48,7 @@ class _AreaPageState extends State<AreaPage> {
           return AlertDialog(
             title: Text('Information'),
             content: Text(
-                'Red dashed line = outdoor route\n\nBlue = start holds\nRed = foot holds\nYellow = hand holds\nGreen = finishing holds'),
+                'Red dashed line = outdoor route\n\nBlue = start holds\nRed = foot holds\nYellow = hand holds\nGreen = finishing holds \n\nHold down on a route to share and see options'),
           );
         });
   }

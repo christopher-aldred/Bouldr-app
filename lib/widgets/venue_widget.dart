@@ -6,6 +6,7 @@ import 'package:bouldr/widgets/venue_list.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
+// ignore: must_be_immutable
 class VenueWidget extends StatefulWidget {
   String? searchText;
   VenueWidget([this.searchText]);

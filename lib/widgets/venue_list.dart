@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
+// ignore: must_be_immutable
 class VenueList extends StatefulWidget {
   String? searchText;
   VenueList([this.searchText]);

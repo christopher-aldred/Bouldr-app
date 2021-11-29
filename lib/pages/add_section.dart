@@ -3,11 +3,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:bouldr/models/section.dart';
-import 'package:bouldr/pages/area_page.dart';
 import 'package:bouldr/repository/data_repository.dart';
 import 'package:bouldr/utils/authentication.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';

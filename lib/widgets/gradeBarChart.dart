@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class GradeBarChart extends StatelessWidget {
   List<int> gradeCount;
   GradeBarChart(this.gradeCount);

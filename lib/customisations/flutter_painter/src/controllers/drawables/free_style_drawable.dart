@@ -125,7 +125,7 @@ class FreeStyleDrawable extends Drawable {
         super == other &&
         other.color == color &&
         other.strokeWidth == strokeWidth &&
-        ListEquality().equals(other.path, path);
+        const ListEquality().equals(other.path, path);
   }
 
   @override

@@ -8,6 +8,7 @@ import 'package:bouldr/utils/hex_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -110,6 +111,11 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
 
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
+    });
+
+    Future.delayed(Duration(seconds: 2), () {
+      Fluttertoast.showToast(
+          msg: "Tap an icon to view the location", timeInSecForIosWeb: 2);
     });
   }
 
@@ -294,6 +300,16 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
         ),
         visible: cragButtonVisibility,
       ),
+      Visibility(
+          visible: allMarkers.isEmpty,
+          child: Center(
+              child: SizedBox(
+            height: 100,
+            width: 100,
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.green),
+            ),
+          )))
     ]);
   }
 

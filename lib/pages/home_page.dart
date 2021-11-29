@@ -15,7 +15,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../repository/data_repository.dart';
 import '../widgets/home_map.dart';
+import 'package:in_app_review/in_app_review.dart';
 
+// ignore: must_be_immutable
 class HomePage extends StatefulWidget {
   HomePage(BuildContext context, {Key? key}) : super(key: key);
   final DataRepository repository = DataRepository();
@@ -32,6 +34,38 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     this.initDynamicLinks();
+  }
+
+  void requestReview() async {
+    final InAppReview inAppReview = InAppReview.instance;
+
+    try {
+      var reviewCount = prefs.getInt('reviewCount');
+      var userReviewed = prefs.getBool('userReviewed');
+
+      if (reviewCount == null || userReviewed == null) {
+        prefs.setInt('reviewCount', 0);
+        prefs.setBool('userReviewed', false);
+
+        reviewCount = prefs.getInt('reviewCount');
+        userReviewed = prefs.getBool('userReviewed');
+      }
+
+      if (userReviewed == false) {
+        if (reviewCount! < 5) {
+          prefs.setInt('reviewCount', reviewCount + 1);
+        } else {
+          prefs.setInt('reviewCount', 0);
+          if (await inAppReview.isAvailable()) {
+            inAppReview
+                .requestReview()
+                .whenComplete(() => prefs.setBool('userReviewed', true));
+          }
+        }
+      }
+    } catch (e) {
+      print('Error: ' + e.toString());
+    }
   }
 
   void handleDeeplink(Uri deepLink) async {
@@ -53,9 +87,11 @@ class _HomePageState extends State<HomePage> {
     });
 
     if (venueId != null) {
+      /*
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => HomePage(context)),
           (Route<dynamic> route) => false);
+          */
 
       Navigator.push(
         context,
@@ -206,6 +242,7 @@ class _HomePageState extends State<HomePage> {
             if (prefs.getString('gradingScale') == null) {
               prefs.setString('gradingScale', "v");
             }
+            requestReview();
             SystemChrome.setPreferredOrientations(
                 [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
             return MaterialApp(

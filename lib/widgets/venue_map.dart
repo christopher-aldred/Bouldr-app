@@ -15,9 +15,10 @@ class VenueMap extends StatefulWidget {
 
 class _VenueMapState extends State<VenueMap> {
   MapboxMapController? controller;
+  List<LatLng> markers = [];
+  bool loaded = false;
 
-  void loadAreas() async {
-    List<LatLng> locations = [];
+  void loadAreas() {
     FirebaseFirestore.instance
         .collection('venues')
         .doc(widget.venue.referenceId)
@@ -28,7 +29,7 @@ class _VenueMapState extends State<VenueMap> {
         String name = result["name"];
         GeoPoint geoPoint = result["location"];
 
-        locations.add(LatLng(geoPoint.latitude, geoPoint.longitude));
+        markers.add(LatLng(geoPoint.latitude, geoPoint.longitude));
 
         setState(() {
           controller!.addSymbol(
@@ -39,36 +40,36 @@ class _VenueMapState extends State<VenueMap> {
                 ),
                 iconImage: "assets/images/boulder_marker.png",
                 textField: name,
-                textOffset: Offset(0, 1.8)),
+                textOffset: Offset(0, 2.2)),
           );
         });
       });
 
-      if (locations.length > 0) {
-        double minLat = 99.0;
-        double minLong = 99.0;
-        double maxLat = 99.0;
-        double maxLong = 99.0;
+      if (markers.length > 0) {
+        double minLat = -1;
+        double minLong = -1;
+        double maxLat = -1;
+        double maxLong = -1;
 
-        locations.forEach((element) {
-          if (minLat.compareTo(90.0) > 0) {
+        markers.forEach((element) {
+          if (minLat == -1 || minLong == -1 || maxLat == -1 || maxLong == -1) {
             minLat = element.latitude;
             maxLat = element.latitude;
             minLong = element.longitude;
             maxLong = element.longitude;
-          } else {
-            if (element.latitude > maxLat) {
-              maxLat = element.latitude;
-            }
-            if (element.latitude < minLat) {
-              minLat = element.latitude;
-            }
-            if (element.longitude > maxLong) {
-              maxLong = element.longitude;
-            }
-            if (element.longitude < minLong) {
-              minLong = element.longitude;
-            }
+          }
+
+          if (element.latitude > maxLat) {
+            maxLat = element.latitude;
+          }
+          if (element.latitude < minLat) {
+            minLat = element.latitude;
+          }
+          if (element.longitude > maxLong) {
+            maxLong = element.longitude;
+          }
+          if (element.longitude < minLong) {
+            minLong = element.longitude;
           }
         });
 
@@ -78,8 +79,11 @@ class _VenueMapState extends State<VenueMap> {
             northeast: LatLng(maxLat, maxLong),
           ),
         ));
-        controller!.animateCamera(CameraUpdate.zoomBy(-3.0));
+        controller!.moveCamera(CameraUpdate.zoomBy(-1.0));
       }
+    }).timeout(Duration(seconds: 10));
+    setState(() {
+      loaded = true;
     });
   }
 
@@ -117,19 +121,31 @@ class _VenueMapState extends State<VenueMap> {
             ),
           ),
         ),
-        body: MapboxMap(
-            myLocationEnabled: true,
-            compassEnabled: true,
-            onMapCreated: _onMapCreated,
-            onStyleLoadedCallback: _onStyleLoaded,
-            accessToken:
-                "sk.eyJ1IjoiY2hyaXMtYWxkcmVkIiwiYSI6ImNrdXpxb2phczMxaGYydXF2bTZmZjNwYWEifQ.ED2yfLbLpNQ_BikUaOYAbg",
-            initialCameraPosition: CameraPosition(
-              zoom: 14,
-              target: LatLng(
-                widget.venue.location.latitude,
-                widget.venue.location.longitude,
-              ),
-            )));
+        body: Stack(children: [
+          MapboxMap(
+              myLocationEnabled: true,
+              compassEnabled: true,
+              onMapCreated: _onMapCreated,
+              onStyleLoadedCallback: _onStyleLoaded,
+              accessToken:
+                  "sk.eyJ1IjoiY2hyaXMtYWxkcmVkIiwiYSI6ImNrdXpxb2phczMxaGYydXF2bTZmZjNwYWEifQ.ED2yfLbLpNQ_BikUaOYAbg",
+              initialCameraPosition: CameraPosition(
+                zoom: 14,
+                target: LatLng(
+                  widget.venue.location.latitude,
+                  widget.venue.location.longitude,
+                ),
+              )),
+          Visibility(
+              visible: !loaded,
+              child: Center(
+                  child: SizedBox(
+                height: 100,
+                width: 100,
+                child: Center(
+                  child: CircularProgressIndicator(color: Colors.blue),
+                ),
+              )))
+        ]));
   }
 }

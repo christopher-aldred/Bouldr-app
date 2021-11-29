@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:bouldr/models/route.dart' as custom_route;
 import 'package:fluttertoast/fluttertoast.dart';
 
+// ignore: must_be_immutable
 class SectionWidget extends StatefulWidget {
   final String venueId;
   final String areaId;

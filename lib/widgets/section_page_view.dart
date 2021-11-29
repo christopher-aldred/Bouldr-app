@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 
+// ignore: must_be_immutable
 class SectionPageView extends StatefulWidget {
   final String venueId;
   final String areaId;

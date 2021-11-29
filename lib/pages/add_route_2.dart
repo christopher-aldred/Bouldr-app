@@ -57,7 +57,6 @@ class _AddRoute2State extends State<AddRoute2> {
         setState(() {
           section = Section.fromSnapshot(querySnapshot);
         });
-        initBackground();
       }
     });
 
@@ -138,9 +137,11 @@ class _AddRoute2State extends State<AddRoute2> {
 
   @override
   Widget build(BuildContext context) {
+    initBackground();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        leading: null,
         backgroundColor: Colors.green,
         title: Text("Add route"),
         actions: [

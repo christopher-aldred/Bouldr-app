@@ -1,21 +1,15 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:bouldr/models/venue.dart';
-import 'package:bouldr/pages/home_page.dart';
-import 'package:bouldr/pages/venue_page.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/map_picker.dart';
 import 'package:bouldr/repository/data_repository.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
-
-import 'package:image/image.dart' as img;
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -164,8 +158,7 @@ class _AddVenueState extends State<AddVenue> {
       quality: 85,
     );
 
-    Future<DocumentReference> response =
-        dr.addVenue(newVenue, context, finalImage);
+    dr.addVenue(newVenue, context, finalImage);
 
     /*
     response.then((value) => {

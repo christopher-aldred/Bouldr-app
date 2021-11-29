@@ -6,6 +6,7 @@ import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class AreaList extends StatelessWidget {
   final String venueId;
   final db = FirebaseFirestore.instance;
