@@ -29,14 +29,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late SharedPreferences prefs;
+  bool dynamic_link = false;
 
   @override
   void initState() {
     super.initState();
-    this.initDynamicLinks();
+    initDynamicLinks();
+    incrementReviewCount();
   }
 
-  void requestReview() async {
+  void incrementReviewCount() async {
     final InAppReview inAppReview = InAppReview.instance;
 
     try {
@@ -69,6 +71,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handleDeeplink(Uri deepLink) async {
+    dynamic_link = true;
+
     String? venueId;
     String? areaId;
     String? sectionId;
@@ -242,7 +246,6 @@ class _HomePageState extends State<HomePage> {
             if (prefs.getString('gradingScale') == null) {
               prefs.setString('gradingScale', "v");
             }
-            requestReview();
             SystemChrome.setPreferredOrientations(
                 [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
             return MaterialApp(
@@ -302,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                     body: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       children: <Widget>[
-                        HomeMapWidget(widget.param),
+                        HomeMapWidget(widget.param, dynamic_link),
                         VenueWidget(),
                       ],
                     ),

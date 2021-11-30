@@ -58,7 +58,7 @@ class _RouteListState extends State<RouteList> {
   }
 
   void shareDynamicLink(String id, String name) async {
-    String url = 'https://bouldr.page.link.com/?venue=' +
+    String url = 'https://bouldr.co.uk/?venue=' +
         widget.venueId +
         '&area=' +
         widget.areaId +
@@ -72,7 +72,7 @@ class _RouteListState extends State<RouteList> {
       link: Uri.parse(url),
       androidParameters: AndroidParameters(
         packageName: 'com.credible.bouldr',
-        minimumVersion: 1,
+        minimumVersion: 13,
       ),
       /*
       iosParameters: IosParameters(

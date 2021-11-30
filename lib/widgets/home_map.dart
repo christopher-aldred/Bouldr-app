@@ -13,8 +13,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class HomeMapWidget extends StatefulWidget {
-  final String param;
-  const HomeMapWidget(this.param, {Key? key}) : super(key: key);
+  String param;
+  bool deep_link;
+  HomeMapWidget(this.param, this.deep_link, {Key? key}) : super(key: key);
 
   @override
   _HomeMapWidgetState createState() => _HomeMapWidgetState();
@@ -114,8 +115,10 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
     });
 
     Future.delayed(Duration(seconds: 2), () {
-      Fluttertoast.showToast(
-          msg: "Tap an icon to view the location", timeInSecForIosWeb: 2);
+      if (widget.deep_link == false) {
+        Fluttertoast.showToast(
+            msg: "Tap an icon to view the location", timeInSecForIosWeb: 2);
+      }
     });
   }
 

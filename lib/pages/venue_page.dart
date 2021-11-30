@@ -101,11 +101,7 @@ class _VenuePageState extends State<VenuePage> {
         });
       }
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    gradeCount = [0, 0, 0, 0, 0];
     FirebaseFirestore.instance
         .collection('venues')
         .doc(widget.venueId)
