@@ -5,28 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
-class GradeBarChart extends StatefulWidget {
+class GradeBarChartSmall extends StatefulWidget {
   String venueId;
 
-  GradeBarChart(this.venueId);
+  GradeBarChartSmall(this.venueId);
 
   @override
-  _GradeBarChartState createState() => _GradeBarChartState();
+  _GradeBarChartSmallState createState() => _GradeBarChartSmallState();
 }
 
-class _GradeBarChartState extends State<GradeBarChart> {
+class _GradeBarChartSmallState extends State<GradeBarChartSmall> {
   List<int> gradeCount = [0, 0, 0, 0, 0];
   late SharedPreferences prefs;
-
-  bool noRoutes() {
-    int routeCount = 0;
-    routeCount += gradeCount[0] +
-        gradeCount[1] +
-        gradeCount[2] +
-        gradeCount[3] +
-        gradeCount[4];
-    return routeCount == 0;
-  }
 
   void getCachedGrades() async {
     prefs = await SharedPreferences.getInstance();
@@ -124,9 +114,7 @@ class _GradeBarChartState extends State<GradeBarChart> {
         }
       }
     }
-    setState(() {
-      gradeCount = grades;
-    });
+    gradeCount = grades;
     setCachedGrades(grades);
   }
 
@@ -141,87 +129,80 @@ class _GradeBarChartState extends State<GradeBarChart> {
     return FutureBuilder<String>(
         future: getGradingScale(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          if (noRoutes()) {
-            return Text('No routes');
-          }
-          return AspectRatio(
-              aspectRatio: 3,
-              child: Stack(children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  child: BarChart(
-                    BarChartData(
-                      gridData: FlGridData(show: false),
-                      barTouchData: barTouchData,
-                      titlesData: FlTitlesData(
-                        show: true,
-                        bottomTitles: SideTitles(
-                          showTitles: true,
-                          getTextStyles: (context, value) => TextStyle(
-                            color: HexColor('525252'),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                          margin: 5,
-                          getTitles: (double value) {
-                            switch (value.toInt()) {
-                              case 0:
-                                if (snapshot.data == "v") {
-                                  return 'VB - V0';
-                                }
-                                if (snapshot.data == "f") {
-                                  return 'f3 - f4';
-                                }
-                                return "";
-
-                              case 1:
-                                if (snapshot.data == "v") {
-                                  return 'V1 - V2';
-                                }
-                                if (snapshot.data == "f") {
-                                  return 'f4 - f5';
-                                }
-                                return "";
-                              case 2:
-                                if (snapshot.data == "v") {
-                                  return 'V3 - V5';
-                                }
-                                if (snapshot.data == "f") {
-                                  return 'f6A - f6C';
-                                }
-                                return "";
-                              case 3:
-                                if (snapshot.data == "v") {
-                                  return 'V6 - V10';
-                                }
-                                if (snapshot.data == "f") {
-                                  return 'f7A - f7C';
-                                }
-                                return "";
-                              case 4:
-                                if (snapshot.data == "v") {
-                                  return 'V11+';
-                                }
-                                if (snapshot.data == "f") {
-                                  return 'f8A+';
-                                }
-                                return "";
-                              default:
-                                return '';
-                            }
-                          },
-                        ),
-                        leftTitles: SideTitles(showTitles: false),
-                        topTitles: SideTitles(showTitles: false),
-                        rightTitles: SideTitles(showTitles: false),
-                      ),
-                      borderData: borderData,
-                      barGroups: barGroups,
-                      alignment: BarChartAlignment.spaceAround,
+          return Padding(
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: BarChart(
+              BarChartData(
+                gridData: FlGridData(show: false),
+                barTouchData: barTouchData,
+                titlesData: FlTitlesData(
+                  show: false,
+                  bottomTitles: SideTitles(
+                    showTitles: true,
+                    getTextStyles: (context, value) => TextStyle(
+                      color: HexColor('525252'),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
                     ),
+                    margin: 5,
+                    getTitles: (double value) {
+                      switch (value.toInt()) {
+                        case 0:
+                          if (snapshot.data == "v") {
+                            return 'VB - V0';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f3 - f4';
+                          }
+                          return "";
+
+                        case 1:
+                          if (snapshot.data == "v") {
+                            return 'V1 - V2';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f4 - f5';
+                          }
+                          return "";
+                        case 2:
+                          if (snapshot.data == "v") {
+                            return 'V3 - V5';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f6A - f6C';
+                          }
+                          return "";
+                        case 3:
+                          if (snapshot.data == "v") {
+                            return 'V6 - V10';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f7A - f7C';
+                          }
+                          return "";
+                        case 4:
+                          if (snapshot.data == "v") {
+                            return 'V11+';
+                          }
+                          if (snapshot.data == "f") {
+                            return 'f8A+';
+                          }
+                          return "";
+                        default:
+                          return '';
+                      }
+                    },
                   ),
-                )
-              ]));
+                  leftTitles: SideTitles(showTitles: false),
+                  topTitles: SideTitles(showTitles: false),
+                  rightTitles: SideTitles(showTitles: false),
+                ),
+                borderData: borderData,
+                barGroups: barGroups,
+                alignment: BarChartAlignment.spaceAround,
+              ),
+            ),
+          );
         });
   }
 
@@ -261,7 +242,6 @@ class _GradeBarChartState extends State<GradeBarChart> {
                 y: gradeCount[0].toDouble(),
                 colors: [Colors.green, Colors.greenAccent])
           ],
-          //showingTooltipIndicators: gradeCount[0] == 0 ? null : [0],
         ),
         BarChartGroupData(
           x: 1,
@@ -271,7 +251,6 @@ class _GradeBarChartState extends State<GradeBarChart> {
                 y: gradeCount[1].toDouble(),
                 colors: [Colors.yellow, Colors.yellowAccent])
           ],
-          //showingTooltipIndicators: gradeCount[1] == 0 ? null : [0],
         ),
         BarChartGroupData(
           x: 2,
@@ -281,7 +260,6 @@ class _GradeBarChartState extends State<GradeBarChart> {
                 y: gradeCount[2].toDouble(),
                 colors: [Colors.orange, Colors.yellow])
           ],
-          //showingTooltipIndicators: gradeCount[2] == 0 ? null : [0],
         ),
         BarChartGroupData(
           x: 3,
@@ -291,7 +269,6 @@ class _GradeBarChartState extends State<GradeBarChart> {
                 y: gradeCount[3].toDouble(),
                 colors: [Colors.red, HexColor('ffadc2')])
           ],
-          //showingTooltipIndicators: gradeCount[3] == 0 ? null : [0],
         ),
         BarChartGroupData(
           x: 4,
@@ -301,7 +278,6 @@ class _GradeBarChartState extends State<GradeBarChart> {
                 y: gradeCount[4].toDouble(),
                 colors: [Colors.black, Colors.grey])
           ],
-          //showingTooltipIndicators: gradeCount[4] == 0 ? null : [0],
         )
       ];
 }

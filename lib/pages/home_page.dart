@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<int> getDefaultTab() async {
     prefs = await SharedPreferences.getInstance();
-    var defaultHomeTab = prefs.getInt('defaultHomeTab') ?? 0;
+    var defaultHomeTab = prefs.getInt('defaultHomeTab') ?? 1;
     return Future.value(defaultHomeTab);
   }
 

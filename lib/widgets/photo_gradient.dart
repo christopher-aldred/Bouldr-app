@@ -12,8 +12,8 @@ class PhotoGradient extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height / 4,
+    return AspectRatio(
+      aspectRatio: 2,
       child: Stack(
         children: <Widget>[
           Container(

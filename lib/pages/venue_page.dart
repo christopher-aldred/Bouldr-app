@@ -26,8 +26,8 @@ class _VenuePageState extends State<VenuePage> {
   Venue venue = Venue("Loading...", LatLng(999, 999), 0, "");
   DataRepository dataRepository = DataRepository();
   int areaCount = -1;
-  List<int> gradeCount = [0, 0, 0, 0, 0];
 
+/*
   bool noRoutes() {
     int routeCount = 0;
     routeCount += gradeCount[0] +
@@ -37,6 +37,7 @@ class _VenuePageState extends State<VenuePage> {
         gradeCount[4];
     return routeCount == 0;
   }
+*/
 
   void weatherDialogue() {
     showDialog(
@@ -99,75 +100,18 @@ class _VenuePageState extends State<VenuePage> {
         setState(() {
           venue = Venue.fromSnapshot(querySnapshot);
         });
+        FirebaseFirestore.instance
+            .collection('venues')
+            .doc(widget.venueId)
+            .collection('areas')
+            .get()
+            .then((value) => {
+                  setState(() {
+                    areaCount = value.docs.length;
+                  })
+                });
       }
     });
-    gradeCount = [0, 0, 0, 0, 0];
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(widget.venueId)
-        .collection('areas')
-        .get()
-        .then((areas) => {
-              areaCount = areas.size,
-              areas.docs.forEach((area) {
-                FirebaseFirestore.instance
-                    .collection('venues')
-                    .doc(widget.venueId)
-                    .collection('areas')
-                    .doc(area.id)
-                    .collection('sections')
-                    .get()
-                    .then((sections) => {
-                          sections.docs.forEach((section) {
-                            FirebaseFirestore.instance
-                                .collection('venues')
-                                .doc(widget.venueId)
-                                .collection('areas')
-                                .doc(area.id)
-                                .collection('sections')
-                                .doc(section.id)
-                                .collection('routes')
-                                .get()
-                                .then((routes) => {
-                                      routes.docs.forEach((route) {
-                                        FirebaseFirestore.instance
-                                            .collection('venues')
-                                            .doc(widget.venueId)
-                                            .collection('areas')
-                                            .doc(area.id)
-                                            .collection('sections')
-                                            .doc(section.id)
-                                            .collection('routes')
-                                            .doc(route.id)
-                                            .get()
-                                            .then((route) => {
-                                                  setState(() {
-                                                    if (route['grade'] <= 2) {
-                                                      gradeCount[0] += 1;
-                                                    }
-                                                    if (route['grade'] > 2 &&
-                                                        route['grade'] <= 4) {
-                                                      gradeCount[1] += 1;
-                                                    }
-                                                    if (route['grade'] > 4 &&
-                                                        route['grade'] <= 10) {
-                                                      gradeCount[2] += 1;
-                                                    }
-                                                    if (route['grade'] > 10 &&
-                                                        route['grade'] <= 16) {
-                                                      gradeCount[3] += 1;
-                                                    }
-                                                    if (route['grade'] > 16) {
-                                                      gradeCount[4] += 1;
-                                                    }
-                                                  }),
-                                                });
-                                      })
-                                    });
-                          })
-                        });
-              })
-            });
   }
 
   @override
@@ -224,6 +168,21 @@ class _VenuePageState extends State<VenuePage> {
             PhotoGradient(venue.name, venue.description.toString(),
                 venue.imagePath.toString()),
             Visibility(
+                visible: true,
+                child: Column(children: <Widget>[
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Column(children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Grades')),
+                        Divider(thickness: 2)
+                      ])),
+                  GradeBarChart(widget.venueId),
+                ])),
+
+            /*
+            Visibility(
               visible: !noRoutes(),
               child: Padding(
                 padding: EdgeInsets.all(0),
@@ -235,10 +194,17 @@ class _VenuePageState extends State<VenuePage> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
                       color: Colors.transparent,
-                      child: GradeBarChart(gradeCount),
+                      child: GradeBarChart(widget.venueId),
                     )),
               ),
             ),
+            */
+            Padding(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Column(children: [
+                  Align(alignment: Alignment.centerLeft, child: Text('Areas')),
+                  Divider(thickness: 2)
+                ])),
             areaCount != 0
                 ? AreaList(venue.referenceId.toString())
                 : Padding(

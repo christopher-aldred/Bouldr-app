@@ -152,13 +152,16 @@ class _AddVenueState extends State<AddVenue> {
           AuthenticationHelper().user.uid, textControllerDescription.text);
     }
 
-    final imageFuture = imageFile!.readAsBytesSync();
-    var finalImage = await FlutterImageCompress.compressWithList(
-      imageFuture,
-      quality: 85,
-    );
-
-    dr.addVenue(newVenue, context, finalImage);
+    if (imageFile != null) {
+      final imageFuture = imageFile!.readAsBytesSync();
+      var finalImage = await FlutterImageCompress.compressWithList(
+        imageFuture,
+        quality: 85,
+      );
+      dr.addVenue(newVenue, context, finalImage);
+    } else {
+      dr.addVenue(newVenue, context);
+    }
 
     /*
     response.then((value) => {
