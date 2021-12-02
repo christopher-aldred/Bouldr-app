@@ -10,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:flutter_fadein/flutter_fadein.dart';
 
 // ignore: must_be_immutable
 class VenueList extends StatefulWidget {
@@ -275,10 +276,14 @@ class _VenueListState extends State<VenueList> {
                                 ),
                               ]))));
                 }).toList();
-
-                return ListView(
-                  padding: EdgeInsets.all(0.0),
-                  children: cardsList,
+                return FadeIn(
+                  child: ListView(
+                    padding: EdgeInsets.all(0.0),
+                    children: cardsList,
+                  ),
+                  // Optional paramaters
+                  duration: Duration(milliseconds: 250),
+                  curve: Curves.easeIn,
                 );
               }
             },
