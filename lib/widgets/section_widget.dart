@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bouldr/models/route.dart' as custom_route;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:multi_split_view/multi_split_view.dart';
 
 // ignore: must_be_immutable
 class SectionWidget extends StatefulWidget {
@@ -117,18 +118,6 @@ class _SectionWidgetState extends State<SectionWidget>
                       {selectRoute(routes[0].referenceId!)}
                   }
               });
-      /*
-      FirebaseFirestore.instance
-          .collection('venues')
-          .doc(widget.venueId)
-          .collection('areas')
-          .doc(widget.areaId)
-          .collection('sections')
-          .doc(widget.sectionId)
-          .collection('routes')
-          .get()
-          .then((routes) => {routeCount = routes.size});
-          */
     });
   }
 
@@ -136,167 +125,169 @@ class _SectionWidgetState extends State<SectionWidget>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      body: Column(children: <Widget>[
-        AspectRatio(
-            aspectRatio: 1,
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  color: Colors.black,
-                  foregroundDecoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.black.withOpacity(0.5),
-                        Colors.transparent,
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7)
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0, 0.03, 0.9, 1],
+        body: MultiSplitViewTheme(
+            data: MultiSplitViewThemeData(
+                dividerThickness: 30,
+                dividerPainter: DividerPainters.grooved1(
+                    color: Colors.indigo[100]!,
+                    highlightedColor: Colors.green)),
+            child: MultiSplitView(
+              axis: Axis.vertical,
+              minimalSize: 100,
+              initialWeights: [0.6, 0.4],
+              children: [
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      color: Colors.black,
+                      foregroundDecoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withOpacity(0.5),
+                            Colors.transparent,
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7)
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [0, 0.03, 0.9, 1],
+                        ),
+                      ),
+                      child: InteractiveViewer(
+                        panEnabled: false, // Set it to false
+                        minScale: 1,
+                        maxScale: 4,
+                        child: Stack(children: <Widget>[
+                          CachedNetworkImage(
+                            imageUrl: section.imagePath.toString(),
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            placeholder: (context, url) => SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                    color: Colors.grey),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                    color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                          CachedNetworkImage(
+                            imageUrl: selectedRouteImageUrl,
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            placeholder: (context, url) => SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                    color: Colors.grey),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(),
+                          ),
+                        ]),
+                      ),
                     ),
-                  ),
-                  child: InteractiveViewer(
-                    panEnabled: false, // Set it to false
-                    minScale: 1,
-                    maxScale: 4,
-                    child: Stack(children: <Widget>[
-                      CachedNetworkImage(
-                        imageUrl: section.imagePath.toString(),
-                        imageBuilder: (context, imageProvider) => Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        placeholder: (context, url) => SizedBox(
-                          height: 100,
-                          width: 100,
-                          child: Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.grey),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => SizedBox(
-                          height: 100,
-                          width: 100,
-                          child: Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                      CachedNetworkImage(
-                        imageUrl: selectedRouteImageUrl,
-                        imageBuilder: (context, imageProvider) => Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        placeholder: (context, url) => SizedBox(
-                          height: 100,
-                          width: 100,
-                          child: Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.grey),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(),
-                      ),
-                    ]),
-                  ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Text(
+                            section.name,
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    )
+                  ],
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                      padding: EdgeInsets.all(5),
-                      child: Text(
-                        section.name,
-                        style: TextStyle(color: Colors.white),
-                      )),
-                )
+                routeCount != 0
+                    ? RouteList(widget.venueId, widget.areaId, widget.sectionId,
+                        selectRoute, refreshSection, selectedRouteId)
+                    : Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Text(
+                          'No routes to display, try adding one',
+                          style: TextStyle(color: Colors.grey),
+                        ))
               ],
             )),
-        routeCount != 0
-            ? Expanded(
-                child: RouteList(
-                    widget.venueId,
-                    widget.areaId,
-                    widget.sectionId,
-                    selectRoute,
-                    refreshSection,
-                    selectedRouteId))
-            : Padding(
-                padding: EdgeInsets.all(5),
-                child: Text(
-                  'No routes to display, try adding one',
-                  style: TextStyle(color: Colors.grey),
-                ))
-      ]),
-      floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
-        Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+        floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
+          Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                  child: FloatingActionButton.extended(
+                    backgroundColor: Colors.green,
+                    onPressed: () => {
+                      if (AuthenticationHelper().user != null)
+                        {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddRoute1(
+                                      widget.venueId,
+                                      widget.areaId,
+                                      section.referenceId!))).then(
+                              (newRouteId) => {refreshSection(newRouteId)})
+                        }
+                      else
+                        {
+                          Fluttertoast.showToast(
+                            msg: 'Must be logged in to perform this action',
+                          ),
+                          AuthenticationHelper().loginDialogue(context)
+                        }
+                    },
+                    label: Text('Add route'),
+                    icon: Icon(Icons.add),
+                  ))),
+          Align(
+              alignment: Alignment.centerRight,
+              child: Visibility(
+                visible: true,
                 child: FloatingActionButton.extended(
                   backgroundColor: Colors.green,
                   onPressed: () => {
                     if (AuthenticationHelper().user != null)
                       {
                         Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => AddRoute1(
-                                        widget.venueId,
-                                        widget.areaId,
-                                        section.referenceId!)))
-                            .then((newRouteId) => {refreshSection(newRouteId)})
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    AddSection(widget.venueId, widget.areaId)))
                       }
                     else
                       {
+                        AuthenticationHelper().loginDialogue(context),
                         Fluttertoast.showToast(
                           msg: 'Must be logged in to perform this action',
-                        ),
-                        AuthenticationHelper().loginDialogue(context)
+                        )
                       }
                   },
-                  label: Text('Add route'),
+                  label: Text('Add Section'),
                   icon: Icon(Icons.add),
-                ))),
-        Align(
-            alignment: Alignment.centerRight,
-            child: Visibility(
-              visible: true,
-              child: FloatingActionButton.extended(
-                backgroundColor: Colors.green,
-                onPressed: () => {
-                  if (AuthenticationHelper().user != null)
-                    {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  AddSection(widget.venueId, widget.areaId)))
-                    }
-                  else
-                    {
-                      AuthenticationHelper().loginDialogue(context),
-                      Fluttertoast.showToast(
-                        msg: 'Must be logged in to perform this action',
-                      )
-                    }
-                },
-                label: Text('Add Section'),
-                icon: Icon(Icons.add),
-              ),
-            ))
-      ]),
-    );
+                ),
+              ))
+        ]));
   }
 
   @override
