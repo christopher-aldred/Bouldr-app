@@ -243,17 +243,40 @@ class _VenuePageState extends State<VenuePage> {
                   ),
           ],
         )),
-        floatingActionButton: Visibility(
-          visible: venue.venueType == 0 ? true : false,
-          child: FloatingActionButton.extended(
-            backgroundColor: Colors.green,
-            onPressed: () => {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VenueMap(venue)))
-            },
-            label: Text('Map'),
-            icon: Icon(Icons.map),
-          ),
+        floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                  child: Visibility(
+                    visible: venue.venueType == 0 ? true : false,
+                    child: FloatingActionButton.extended(
+                      backgroundColor: Colors.green,
+                      onPressed: () => {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => VenueMap(venue)))
+                      },
+                      label: Text('Map'),
+                      icon: Icon(Icons.map),
+                    ),
+                  )),
+            ),
+            Align(
+                alignment: Alignment.centerRight,
+                child: Visibility(
+                  visible: true,
+                  child: FloatingActionButton.extended(
+                    backgroundColor: Colors.green,
+                    onPressed: () => {handleActions('Add area')},
+                    label: Text('Add area'),
+                    icon: Icon(Icons.layers),
+                  ),
+                ))
+          ],
         ));
   }
 }

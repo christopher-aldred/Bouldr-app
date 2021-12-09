@@ -76,11 +76,11 @@ class _RouteListState extends State<RouteList> {
       ),
       /*
       iosParameters: IosParameters(
-          bundleId: 'your_ios_bundle_identifier',
-          minimumVersion: '1',
-          appStoreId: 'your_app_store_id',
-        ),
-        */
+        bundleId: 'com.credible.bouldr',
+        minimumVersion: '13',
+        appStoreId: 'your_app_store_id',
+      ),
+      */
     );
     var dynamicUrl = parameters.buildShortLink();
     //final Uri shortUrl = dynamicUrl.shortUrl;
@@ -315,45 +315,8 @@ class _RouteListState extends State<RouteList> {
                       expandedHeaderPadding: EdgeInsets.all(0),
                     );
                   }),
-                  SizedBox(height: 80),
+                  SizedBox(height: 140),
                 ]);
-                /*
-                ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var route = snapshot.data!.docs[index];
-                      return Card(
-                          color: widget.selectedRouteId == route.id
-                              ? HexColor('e0e0e0')
-                              : Colors.white,
-                          child: ListTile(
-                            title: Text(
-                              route['name'],
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: widget.selectedRouteId == route.id
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                            subtitle: Text("Grade: " +
-                                widget.grade.getGradeByIndex(
-                                    route['grade'],
-                                    prefs
-                                        .getString('gradingScale')
-                                        .toString())),
-                            onTap: () => {widget.callBackSelectRoute(route.id)},
-                            onLongPress: () => {
-                              optionsDialogue(
-                                  id: route.id,
-                                  routeName: route['name'],
-                                  createdBy: route['createdBy'],
-                                  description: route['description'])
-                            },
-                          ));
-                    });
-                    */
               }
             },
           );

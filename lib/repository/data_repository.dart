@@ -69,16 +69,6 @@ class DataRepository {
           incrementAreaRouteCount(venueId, areaId),
           Navigator.of(context).pop(),
           Navigator.of(context).pop(route.referenceId),
-          /*
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AreaPage(venueId, areaId),
-            ),
-          )
-          */
-          //newRoute.referenceId = value.id,
-          //uploadImage(newRoute),
         });
   }
 
@@ -266,7 +256,6 @@ class DataRepository {
                   MaterialPageRoute(
                       builder: (context) =>
                           VenuePage(venue.referenceId.toString()))),
-              //updateUserTimestamp()
             }
           else
             {
@@ -285,7 +274,6 @@ class DataRepository {
                         MaterialPageRoute(
                             builder: (context) =>
                                 VenuePage(venue.referenceId.toString()))),
-                    //updateUserTimestamp()
                   })
             },
         });
@@ -332,7 +320,6 @@ class DataRepository {
   }
 
   void updateUserTimestamp() async {
-    //await Future.delayed(Duration(seconds: 1));
     var users = FirebaseFirestore.instance.collection('users');
     users.doc(AuthenticationHelper().user.uid) // <-- Document ID
         .update({

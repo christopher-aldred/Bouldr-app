@@ -2,6 +2,7 @@
 
 import 'package:bouldr/models/section.dart';
 import 'package:bouldr/pages/add_route_1.dart';
+import 'package:bouldr/pages/add_section.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/route_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -178,11 +179,6 @@ class _SectionWidgetState extends State<SectionWidget>
                                 CircularProgressIndicator(color: Colors.grey),
                           ),
                         ),
-                        /*
-                  errorWidget: (context, url, error) => Image(
-                      image: AssetImage('assets/images/missing.png'),
-                      fit: BoxFit.cover),
-                      */
                         errorWidget: (context, url, error) => SizedBox(
                           height: 100,
                           width: 100,
@@ -242,29 +238,64 @@ class _SectionWidgetState extends State<SectionWidget>
                   style: TextStyle(color: Colors.grey),
                 ))
       ]),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.green,
-        onPressed: () => {
-          if (AuthenticationHelper().user != null)
-            {
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddRoute1(widget.venueId,
-                              widget.areaId, section.referenceId!)))
-                  .then((newRouteId) => {refreshSection(newRouteId)})
-            }
-          else
-            {
-              Fluttertoast.showToast(
-                msg: 'Must be logged in to perform this action',
+      floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
+        Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                child: FloatingActionButton.extended(
+                  backgroundColor: Colors.green,
+                  onPressed: () => {
+                    if (AuthenticationHelper().user != null)
+                      {
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AddRoute1(
+                                        widget.venueId,
+                                        widget.areaId,
+                                        section.referenceId!)))
+                            .then((newRouteId) => {refreshSection(newRouteId)})
+                      }
+                    else
+                      {
+                        Fluttertoast.showToast(
+                          msg: 'Must be logged in to perform this action',
+                        ),
+                        AuthenticationHelper().loginDialogue(context)
+                      }
+                  },
+                  label: Text('Add route'),
+                  icon: Icon(Icons.add),
+                ))),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Visibility(
+              visible: true,
+              child: FloatingActionButton.extended(
+                backgroundColor: Colors.green,
+                onPressed: () => {
+                  if (AuthenticationHelper().user != null)
+                    {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  AddSection(widget.venueId, widget.areaId)))
+                    }
+                  else
+                    {
+                      AuthenticationHelper().loginDialogue(context),
+                      Fluttertoast.showToast(
+                        msg: 'Must be logged in to perform this action',
+                      )
+                    }
+                },
+                label: Text('Add Section'),
+                icon: Icon(Icons.add),
               ),
-              AuthenticationHelper().loginDialogue(context)
-            }
-        },
-        label: Text('Add route'),
-        icon: Icon(Icons.add),
-      ),
+            ))
+      ]),
     );
   }
 

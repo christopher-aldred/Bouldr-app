@@ -28,7 +28,6 @@ class _AddVenueState extends State<AddVenue> {
 
   Location location = Location();
   DataRepository dr = DataRepository();
-  late LocationData _pos;
 
   String _dropDownValue = "";
 
@@ -40,7 +39,6 @@ class _AddVenueState extends State<AddVenue> {
     if (AuthenticationHelper().user == null) {
       Navigator.pop(context);
     }
-    getLocation();
   }
 
   void _showMaterialDialog() {
@@ -92,38 +90,6 @@ class _AddVenueState extends State<AddVenue> {
     }
   }
 
-  void getLocation() async {
-    _pos = await location.getLocation();
-  }
-
-  /*
-  void uploadImage(Venue newVenue) async {
-    final imageData = imageFile!.readAsBytesSync();
-
-    String filePath =
-        "/images/" + newVenue.referenceId.toString() + "/venue_image.png";
-
-    try {
-      var storageimage = FirebaseStorage.instance.ref().child(filePath);
-      UploadTask task1 = storageimage.putData(imageData);
-
-      Future<String> url = (await task1).ref.getDownloadURL();
-      url.then((value) => {
-            {newVenue.imagePath = value},
-            dr.updateVenue(newVenue),
-            Navigator.of(context).pop(),
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        VenuePage(newVenue.referenceId.toString())))
-          });
-    } on FirebaseException catch (error) {
-      print(error);
-    }
-  }
-  */
-
   Future<void> save() async {
     if (chosenLocation == null ||
         _dropDownValue == "" ||
@@ -162,31 +128,13 @@ class _AddVenueState extends State<AddVenue> {
     } else {
       dr.addVenue(newVenue, context);
     }
-
-    /*
-    response.then((value) => {
-          newVenue!.referenceId = value.id,
-          if (imageFile == null)
-            {
-              Navigator.of(context).pop(),
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => HomePage(context))),
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          VenuePage(newVenue!.referenceId.toString())))
-            },
-          if (imageFile != null) {uploadImage(newVenue)},
-        });
-    */
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Add venue'),
+          title: Text('Add location'),
           actions: <Widget>[],
           backgroundColor: Colors.green,
           leading: InkWell(
@@ -235,6 +183,7 @@ class _AddVenueState extends State<AddVenue> {
                 Padding(
                   padding: EdgeInsets.all(10),
                   child: DropdownButton(
+                    onTap: () => {FocusScope.of(context).unfocus()},
                     hint: _dropDownValue == ""
                         ? Text('Select venue type')
                         : Text(_dropDownValue),
@@ -282,8 +231,8 @@ class _AddVenueState extends State<AddVenue> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => MapPicker(
-                                          _pos.latitude!.toDouble(),
-                                          _pos.longitude!.toDouble(),
+                                        //_pos.latitude!.toDouble(),
+                                        //_pos.longitude!.toDouble(),
                                         )))
                             .then((value) => {chosenLocation = value as LatLng})
                       },

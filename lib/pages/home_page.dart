@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
 
   void incrementReviewCount() async {
     final InAppReview inAppReview = InAppReview.instance;
-
+    prefs = await SharedPreferences.getInstance();
     try {
       var reviewCount = prefs.getInt('reviewCount');
       var userReviewed = prefs.getBool('userReviewed');
@@ -177,7 +177,7 @@ class _HomePageState extends State<HomePage> {
 
   void handleActions(String value) {
     switch (value) {
-      case 'Add venue':
+      case 'Add location':
         if (AuthenticationHelper().user != null) {
           Navigator.push(
                   context, MaterialPageRoute(builder: (context) => AddVenue()))
@@ -248,20 +248,15 @@ class _HomePageState extends State<HomePage> {
             }
             SystemChrome.setPreferredOrientations(
                 [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                primarySwatch: Colors.green,
-              ),
-              home: DefaultTabController(
-                initialIndex: snapshot.data!.toInt(),
-                length: 2,
-                child: Builder(builder: (context) {
-                  final tabController = DefaultTabController.of(context)!;
-                  tabController.addListener(() {
-                    prefs.setInt('defaultHomeTab', tabController.index);
-                  });
-                  return Scaffold(
+            return DefaultTabController(
+              initialIndex: snapshot.data!.toInt(),
+              length: 2,
+              child: Builder(builder: (context) {
+                final tabController = DefaultTabController.of(context)!;
+                tabController.addListener(() {
+                  prefs.setInt('defaultHomeTab', tabController.index);
+                });
+                return Scaffold(
                     appBar: AppBar(
                         actions: <Widget>[
                           IconButton(
@@ -275,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                           PopupMenuButton<String>(
                             onSelected: (handleActions),
                             itemBuilder: (BuildContext context) {
-                              return {'Add venue', 'Settings'}
+                              return {'Add location', 'Settings'}
                                   .map((String choice) {
                                 return PopupMenuItem<String>(
                                   value: choice,
@@ -309,9 +304,14 @@ class _HomePageState extends State<HomePage> {
                         VenueWidget(),
                       ],
                     ),
-                  );
-                }),
-              ),
+                    floatingActionButton: Visibility(
+                        visible: true,
+                        child: FloatingActionButton.extended(
+                            backgroundColor: Colors.green,
+                            onPressed: () => {handleActions('Add location')},
+                            label: Text('Add location'),
+                            icon: Icon(Icons.location_on))));
+              }),
             );
           }
         }

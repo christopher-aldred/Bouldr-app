@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:typed_data';
+
 import 'package:bouldr/pages/search_page.dart';
 import 'package:bouldr/pages/venue_page.dart';
 import 'package:bouldr/repository/data_repository.dart';
@@ -11,7 +13,9 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'dart:ui' as ui;
 
+// ignore: must_be_immutable
 class HomeMapWidget extends StatefulWidget {
   String param;
   bool deep_link;
@@ -31,14 +35,30 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
   String selectedCragName = "";
   String selectedCragId = "";
 
-  late BitmapDescriptor icon;
-  late BitmapDescriptor icon2;
   late BitmapDescriptor gymMarker;
   late String _mapStyle;
   List<Marker> allMarkers = [];
 
   bool cragButtonVisibility = false;
   DataRepository dr = DataRepository();
+
+  int widgetSize = 100;
+  int mapMarkerCount = 0;
+
+  late BitmapDescriptor icon;
+  late BitmapDescriptor icon2;
+
+  List<BitmapDescriptor> boulderIcons = [];
+
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
 
   void optionsDialogue(
       {required String id,
@@ -98,17 +118,26 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
   @override
   void initState() {
     super.initState();
+    /*
     BitmapDescriptor.fromAssetImage(
             ImageConfiguration(), 'assets/images/boulder_marker.png')
         .then((value) => icon = value);
+        */
 
-    BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(), 'assets/images/boulder_2_marker.png')
-        .then((value) => icon2 = value);
+    getBytesFromAsset('assets/images/boulder_marker.png', widgetSize)
+        .then((value) => boulderIcons.add(BitmapDescriptor.fromBytes(value)));
 
+    getBytesFromAsset('assets/images/boulder_2_marker.png', widgetSize)
+        .then((value) => boulderIcons.add(BitmapDescriptor.fromBytes(value)));
+
+/*
     BitmapDescriptor.fromAssetImage(
             ImageConfiguration(), 'assets/images/gym_marker.png')
         .then((value) => gymMarker = value);
+        */
+
+    getBytesFromAsset('assets/images/gym_marker.png', widgetSize)
+        .then((value) => gymMarker = BitmapDescriptor.fromBytes(value));
 
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
@@ -144,6 +173,13 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
       String createdBy) {
     setState(() {
       // add marker
+
+      if (mapMarkerCount < boulderIcons.length - 1) {
+        mapMarkerCount += 1;
+      } else {
+        mapMarkerCount = 0;
+      }
+
       allMarkers.add(Marker(
         markerId: MarkerId(id),
         infoWindow: InfoWindow(
@@ -152,7 +188,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
               {optionsDialogue(id: id, venueName: name, createdBy: createdBy)},
         ),
         draggable: false,
-        icon: venueType == 0 ? icon : gymMarker,
+        icon: venueType == 0 ? boulderIcons[mapMarkerCount] : gymMarker,
         position: location,
         onTap: () => mapItemClick(id, name, location),
       ));
@@ -182,7 +218,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
-            target: LatLng(_pos.latitude!, _pos.longitude!), zoom: 8),
+            target: LatLng(_pos.latitude!, _pos.longitude!), zoom: 9),
       ),
     );
 
@@ -215,6 +251,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
     return Stack(children: <Widget>[
       // The containers in the background
       GoogleMap(
+        myLocationButtonEnabled: false,
         onMapCreated: _onMapCreated,
         mapToolbarEnabled: false,
         mapType: MapType.normal,
@@ -228,7 +265,7 @@ class _HomeMapWidgetState extends State<HomeMapWidget>
         markers: Set.from(allMarkers),
         initialCameraPosition: CameraPosition(
           target: _center,
-          zoom: 11.0,
+          zoom: 9.0,
         ),
         zoomControlsEnabled: false,
       ),

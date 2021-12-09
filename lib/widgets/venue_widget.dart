@@ -15,8 +15,7 @@ class VenueWidget extends StatefulWidget {
   _VenueWidgetState createState() => _VenueWidgetState();
 }
 
-class _VenueWidgetState extends State<VenueWidget>
-    with AutomaticKeepAliveClientMixin {
+class _VenueWidgetState extends State<VenueWidget> {
   final TextEditingController textController = TextEditingController();
   final Location location = Location();
   DataRepository dr = DataRepository();
@@ -33,7 +32,6 @@ class _VenueWidgetState extends State<VenueWidget>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Column(
       children: <Widget>[
         Container(
@@ -62,7 +60,4 @@ class _VenueWidgetState extends State<VenueWidget>
       ],
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

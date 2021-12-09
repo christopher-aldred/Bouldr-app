@@ -33,11 +33,6 @@ class _VenueListState extends State<VenueList> {
     apiKey: '87439e6206f73431de605ad86da3e139',
   );
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   void queryAlgolia() async {
     if (widget.searchText != null &&
         matchedVenues.length == 1 &&
@@ -149,14 +144,22 @@ class _VenueListState extends State<VenueList> {
         AsyncSnapshot<LocationData> snapshot,
       ) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Center(
+            child: SizedBox(
+              height: 100,
+              width: 100,
+              child: Center(
+                child: CircularProgressIndicator(color: Colors.grey),
+              ),
+            ),
+          );
         } else if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             currentLat = snapshot.data!.latitude!;
             currentLong = snapshot.data!.longitude!;
           }
 
-          var distance = 50;
+          var distance = 100;
 
           double lat = 0.0144927536231884;
           double lon = 0.0181818181818182;
@@ -173,7 +176,13 @@ class _VenueListState extends State<VenueList> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.grey),
+                    ),
+                  ),
                 );
               } else {
                 List geoOrdered = snapshot.data!.docs.toList();
@@ -203,7 +212,7 @@ class _VenueListState extends State<VenueList> {
                   }
                 }
 
-                var cardsList = geoOrdered.map((doc) {
+                List<Widget> cardsList = geoOrdered.map((doc) {
                   double distance = 0.0;
                   GeoPoint venueLocation = doc['location'];
                   if (currentLat != -999) {
@@ -276,6 +285,12 @@ class _VenueListState extends State<VenueList> {
                                 ),
                               ]))));
                 }).toList();
+
+                cardsList.add(Card(
+                    color: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    child: SizedBox(height: 70)));
+
                 return FadeIn(
                   child: ListView(
                     padding: EdgeInsets.all(0.0),

@@ -114,7 +114,9 @@ class _GradeBarChartSmallState extends State<GradeBarChartSmall> {
         }
       }
     }
-    gradeCount = grades;
+    setState(() {
+      gradeCount = grades;
+    });
     setCachedGrades(grades);
   }
 

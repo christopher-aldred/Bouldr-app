@@ -82,30 +82,40 @@ class AreaList extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else {
+          List<Widget> tiles = snapshot.data!.docs.map((area) {
+            //print(snapshot.data!.docs.length);
+            return Card(
+              child: ListTile(
+                title: Text(area['name']),
+                subtitle: Text(area['routeCount'].toString() + ' routes'),
+                onTap: () => {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AreaPage(venueId, area.id)))
+                },
+                onLongPress: () => {
+                  optionsDialogue(
+                      id: area.id,
+                      areaName: area['name'],
+                      createdBy: area['createdBy'])
+                },
+              ),
+            );
+          }).toList();
+
+          tiles.add(Card(
+            color: Colors.transparent,
+            shadowColor: Colors.transparent,
+            child: SizedBox(
+              height: 130,
+            ),
+          ));
+
           return ListView(
             primary: false,
             shrinkWrap: true,
-            children: snapshot.data!.docs.map((area) {
-              //print(snapshot.data!.docs.length);
-              return Card(
-                child: ListTile(
-                  title: Text(area['name']),
-                  subtitle: Text(area['routeCount'].toString() + ' routes'),
-                  onTap: () => {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AreaPage(venueId, area.id)))
-                  },
-                  onLongPress: () => {
-                    optionsDialogue(
-                        id: area.id,
-                        areaName: area['name'],
-                        createdBy: area['createdBy'])
-                  },
-                ),
-              );
-            }).toList(),
+            children: tiles,
           );
         }
       },

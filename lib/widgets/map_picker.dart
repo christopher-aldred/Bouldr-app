@@ -2,11 +2,13 @@
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 
+// ignore: must_be_immutable
 class MapPicker extends StatefulWidget {
-  final double startLat;
-  final double startLong;
-  const MapPicker(this.startLat, this.startLong, {Key? key}) : super(key: key);
+  double startLat;
+  double startLong;
+  MapPicker([this.startLat = -999, this.startLong = -999]);
 
   @override
   _MapPickerState createState() => _MapPickerState();
@@ -14,14 +16,25 @@ class MapPicker extends StatefulWidget {
 
 class _MapPickerState extends State<MapPicker> {
   late GoogleMapController _controller;
-  late LatLng _lastMapPosition;
+  LatLng _lastMapPosition = LatLng(0, 0);
+  Location location = Location();
 
   void _onMapCreated(GoogleMapController _cntlr) {
     _controller = _cntlr;
-    _lastMapPosition = LatLng(widget.startLat, widget.startLong);
-    _controller.moveCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(target: _lastMapPosition, zoom: 18),
-    ));
+    if (widget.startLat != -999 || widget.startLong != -999) {
+      _lastMapPosition = LatLng(widget.startLat, widget.startLong);
+      _controller.moveCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: _lastMapPosition, zoom: 17),
+      ));
+    } else {
+      location.getLocation().then((value) => {
+            _lastMapPosition =
+                LatLng(value.latitude!.toDouble(), value.longitude!.toDouble()),
+            _controller.moveCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(target: _lastMapPosition, zoom: 17),
+            ))
+          });
+    }
   }
 
   void _onCameraMove(CameraPosition position) {
@@ -50,10 +63,13 @@ class _MapPickerState extends State<MapPicker> {
         child: Stack(
           children: [
             GoogleMap(
+              myLocationButtonEnabled: false,
               mapToolbarEnabled: false,
               zoomControlsEnabled: false,
               initialCameraPosition: CameraPosition(
-                  target: LatLng(widget.startLat, widget.startLong)),
+                  zoom: 1,
+                  target: LatLng(
+                      _lastMapPosition.latitude, _lastMapPosition.longitude)),
               mapType: MapType.normal,
               onMapCreated: _onMapCreated,
               onCameraMove: _onCameraMove,
