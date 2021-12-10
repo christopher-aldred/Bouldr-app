@@ -230,64 +230,29 @@ class _SectionWidgetState extends State<SectionWidget>
                         ))
               ],
             )),
-        floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
-          Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
-                  child: FloatingActionButton.extended(
-                    backgroundColor: Colors.green,
-                    onPressed: () => {
-                      if (AuthenticationHelper().user != null)
-                        {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddRoute1(
-                                      widget.venueId,
-                                      widget.areaId,
-                                      section.referenceId!))).then(
-                              (newRouteId) => {refreshSection(newRouteId)})
-                        }
-                      else
-                        {
-                          Fluttertoast.showToast(
-                            msg: 'Must be logged in to perform this action',
-                          ),
-                          AuthenticationHelper().loginDialogue(context)
-                        }
-                    },
-                    label: Text('Add route'),
-                    icon: Icon(Icons.add),
-                  ))),
-          Align(
-              alignment: Alignment.centerRight,
-              child: Visibility(
-                visible: true,
-                child: FloatingActionButton.extended(
-                  backgroundColor: Colors.green,
-                  onPressed: () => {
-                    if (AuthenticationHelper().user != null)
-                      {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    AddSection(widget.venueId, widget.areaId)))
-                      }
-                    else
-                      {
-                        AuthenticationHelper().loginDialogue(context),
-                        Fluttertoast.showToast(
-                          msg: 'Must be logged in to perform this action',
-                        )
-                      }
-                  },
-                  label: Text('Add Section'),
-                  icon: Icon(Icons.add),
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Colors.green,
+          onPressed: () => {
+            if (AuthenticationHelper().user != null)
+              {
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddRoute1(widget.venueId,
+                                widget.areaId, section.referenceId!)))
+                    .then((newRouteId) => {refreshSection(newRouteId)})
+              }
+            else
+              {
+                Fluttertoast.showToast(
+                  msg: 'Must be logged in to perform this action',
                 ),
-              ))
-        ]));
+                AuthenticationHelper().loginDialogue(context)
+              }
+          },
+          label: Text('Add route'),
+          icon: Icon(Icons.show_chart),
+        ));
   }
 
   @override

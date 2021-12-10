@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:bouldr/models/area.dart';
+import 'package:bouldr/models/ascent.dart';
 import 'package:bouldr/models/section.dart';
 import 'package:bouldr/pages/area_page.dart';
 import 'package:bouldr/pages/venue_page.dart';
@@ -13,6 +14,18 @@ import 'package:bouldr/models/route.dart' as custom_route;
 import '../models/venue.dart';
 
 class DataRepository {
+  Future<DocumentReference> addAscent(
+      String routeId, String ascentStyle, DateTime ascentTime) {
+    final CollectionReference ascents = FirebaseFirestore.instance
+        .collection('users')
+        .doc(AuthenticationHelper().user.uid)
+        .collection('ascents');
+
+    var result = ascents.add(Ascent(routeId, ascentStyle, ascentTime).toJson());
+    result.then((value) => {updateUserTimestamp()});
+    return result;
+  }
+
   Future<DocumentReference> addRoute(
       String venueId,
       String areaId,

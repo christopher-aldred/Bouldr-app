@@ -4,10 +4,13 @@ import 'package:bouldr/utils/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/grade.dart';
 import '../customisations/expansion_panel.dart' as custom_expansion_panel;
 import 'package:share/share.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
 class RouteList extends StatefulWidget {
@@ -31,6 +34,30 @@ class RouteList extends StatefulWidget {
 class _RouteListState extends State<RouteList> {
   DataRepository dr = DataRepository();
   late SharedPreferences prefs;
+  ScrollController controller = ScrollController();
+  Set<String> climbedRoutes = {};
+
+  //@override
+  void getAscents() {
+    //super.didChangeDependencies();
+    if (AuthenticationHelper().user != null) {
+      widget.db
+          .collection('users')
+          .doc(AuthenticationHelper().user.uid)
+          .collection('ascents')
+          .get()
+          .then((value) => {
+                if (value.docs.length > 0)
+                  {
+                    //setState(() {
+                    value.docs.forEach((element) {
+                      climbedRoutes.add(element['routeId']); //;
+                      //});
+                    })
+                  }
+              });
+    }
+  }
 
   Future<String> getGradingScale() async {
     prefs = await SharedPreferences.getInstance();
@@ -93,6 +120,117 @@ class _RouteListState extends State<RouteList> {
               value.shortUrl.toString())
         });
   }
+
+  void logAscent(route) async {
+    if (AuthenticationHelper().user == null) {
+      AuthenticationHelper().loginDialogue(context);
+      Fluttertoast.showToast(
+        msg: "Sign in to log climbs",
+      );
+      return;
+    }
+    showDialog(
+        context: context,
+        builder: (context) {
+          String ascentStyle = "";
+          DateTime ascentDate = DateTime.now();
+          return StatefulBuilder(builder: (context, setStateDialogue) {
+            return AlertDialog(
+              title: Text('Log ascent', textAlign: TextAlign.center),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 15),
+                    child: Text(route['name']),
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                  ),
+                  DateTimeField(
+                    initialValue: DateTime.now(),
+                    format: DateFormat("dd-MM-yyyy"),
+                    onShowPicker: (context, currentValue) async {
+                      final date = await showDatePicker(
+                          context: context,
+                          firstDate: DateTime(1900),
+                          initialDate: DateTime.now(),
+                          lastDate: DateTime(2100));
+                      if (date != null) {
+                        ascentDate = date;
+                        return date;
+                      } else {
+                        return currentValue;
+                      }
+                    },
+                  ),
+                  DropdownButton(
+                    onTap: () => {FocusScope.of(context).unfocus()},
+                    hint: ascentStyle == ""
+                        ? Text('Select ascent style')
+                        : Text(ascentStyle),
+                    isExpanded: true,
+                    iconSize: 30.0,
+                    items: ['Onsight', 'Flash', 'Repeat'].map(
+                      (val) {
+                        return DropdownMenuItem<String>(
+                          value: val,
+                          child: Text(val),
+                        );
+                      },
+                    ).toList(),
+                    onChanged: (val) {
+                      setStateDialogue(
+                        () {
+                          ascentStyle = val.toString();
+                        },
+                      );
+                    },
+                  ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                            child: ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.grey)),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Cancel'))),
+                        SizedBox(width: 20),
+                        Expanded(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  if (ascentStyle != "") {
+                                    Navigator.pop(context);
+                                    dr
+                                        .addAscent(
+                                            route.id, ascentStyle, ascentDate)
+                                        .then((value) => {
+                                              setState(() {
+                                                widget.selectedRouteId =
+                                                    route.id;
+                                              }),
+                                            });
+                                  } else {
+                                    Fluttertoast.showToast(
+                                      msg: "Must select ascent style",
+                                    );
+                                  }
+                                },
+                                child: Text('Save'))) // button 2
+                      ])
+                ],
+              ),
+            );
+          });
+        });
+  }
+
+  void viewAscent(route) {}
 
   void optionsDialogue(
       {required String id,
@@ -172,8 +310,18 @@ class _RouteListState extends State<RouteList> {
             });
   }
 
+  void scrollToListView(index) {
+    double scrollOffset = 0;
+    if ((index * 60.0) - 60 > 0) {
+      scrollOffset = (index * 60.0) - 60;
+    }
+    controller.animateTo(scrollOffset,
+        duration: Duration(milliseconds: 250), curve: Curves.ease);
+  }
+
   @override
   Widget build(BuildContext context) {
+    getAscents();
     return FutureBuilder<String>(
         future: getGradingScale(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -194,12 +342,13 @@ class _RouteListState extends State<RouteList> {
                   child: CircularProgressIndicator(),
                 );
               } else {
-                return ListView(children: <Widget>[
+                return ListView(controller: controller, children: <Widget>[
                   Builder(builder: (BuildContext context) {
                     List<custom_expansion_panel.ExpansionPanel> panels = [];
 
                     for (int i = 0; i < snapshot.data!.docs.length; i++) {
                       var route = snapshot.data!.docs[i];
+
                       panels.add(custom_expansion_panel.ExpansionPanel(
                         isExpanded: widget.selectedRouteId == route.id,
                         hasIcon: false,
@@ -235,6 +384,7 @@ class _RouteListState extends State<RouteList> {
                               )
                             ],
                           ),
+                          /*
                           trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -271,8 +421,35 @@ class _RouteListState extends State<RouteList> {
                                               image: AssetImage(
                                                   'assets/images/jam.png'))),
                                     ])
+                              ]),*/
+                          trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Row(mainAxisSize: MainAxisSize.min, children: <
+                                    Widget>[
+                                  InkWell(
+                                    child: climbedRoutes.firstWhere(
+                                                (item) =>
+                                                    item.toString() == route.id,
+                                                orElse: () => "") ==
+                                            ""
+                                        ? Icon(Icons.circle_outlined)
+                                        : Icon(Icons.check_circle,
+                                            color: Colors.green),
+                                    onTap: climbedRoutes.firstWhere(
+                                                (item) =>
+                                                    item.toString() == route.id,
+                                                orElse: () => "") ==
+                                            ""
+                                        ? () => {logAscent(route)}
+                                        : () => {viewAscent(route)},
+                                  )
+                                ])
                               ]),
-                          onTap: () => {widget.callBackSelectRoute(route.id)},
+                          onTap: () => {
+                            widget.callBackSelectRoute(route.id),
+                          },
                           onLongPress: () => {
                             optionsDialogue(
                                 id: route.id,
@@ -280,7 +457,6 @@ class _RouteListState extends State<RouteList> {
                                 createdBy: route['createdBy'],
                                 description: route['description'])
                           },
-                          //leading: Icon(FontAwesomeIcons.bookmark),
                           title: Align(
                             child: new Text(
                               route['name'],
@@ -308,6 +484,10 @@ class _RouteListState extends State<RouteList> {
                           },
                         ),
                       ));
+
+                      if (widget.selectedRouteId == route.id) {
+                        scrollToListView(i);
+                      }
                     }
 
                     return custom_expansion_panel.ExpansionPanelList(

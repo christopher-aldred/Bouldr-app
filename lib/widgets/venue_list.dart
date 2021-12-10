@@ -37,7 +37,7 @@ class _VenueListState extends State<VenueList> {
     if (widget.searchText != null &&
         matchedVenues.length == 1 &&
         matchedVenues[0] == "-XYZ") {
-      List<String> temp = [];
+      List<String> temp = [' '];
       AlgoliaQuery query =
           algolia.instance.index('venues').query(widget.searchText.toString());
       AlgoliaQuerySnapshot snap = await query.getObjects();

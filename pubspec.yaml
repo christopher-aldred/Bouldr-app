@@ -59,6 +59,7 @@ dependencies:
   algolia: ^1.0.4
   flutter_fadein: ^2.0.0
   multi_split_view: ^1.10.0+1
+  datetime_picker_formfield: ^2.0.0
 
 dev_dependencies:
   test: ^1.17.9

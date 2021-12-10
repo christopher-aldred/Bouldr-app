@@ -253,6 +253,7 @@ class _VenuePageState extends State<VenuePage> {
                   child: Visibility(
                     visible: venue.venueType == 0 ? true : false,
                     child: FloatingActionButton.extended(
+                      heroTag: "btn1",
                       backgroundColor: Colors.green,
                       onPressed: () => {
                         Navigator.push(
@@ -270,6 +271,7 @@ class _VenuePageState extends State<VenuePage> {
                 child: Visibility(
                   visible: true,
                   child: FloatingActionButton.extended(
+                    heroTag: "btn2",
                     backgroundColor: Colors.green,
                     onPressed: () => {handleActions('Add area')},
                     label: Text('Add area'),
