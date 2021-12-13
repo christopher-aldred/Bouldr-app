@@ -303,14 +303,7 @@ class _HomePageState extends State<HomePage> {
                         HomeMapWidget(widget.param, dynamic_link),
                         VenueWidget(),
                       ],
-                    ),
-                    floatingActionButton: Visibility(
-                        visible: true,
-                        child: FloatingActionButton.extended(
-                            backgroundColor: Colors.green,
-                            onPressed: () => {handleActions('Add location')},
-                            label: Text('Add location'),
-                            icon: Icon(Icons.location_on))));
+                    ));
               }),
             );
           }

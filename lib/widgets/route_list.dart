@@ -11,6 +11,7 @@ import '../customisations/expansion_panel.dart' as custom_expansion_panel;
 import 'package:share/share.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
+import 'package:bouldr/models/route.dart' as custom_route;
 
 // ignore: must_be_immutable
 class RouteList extends StatefulWidget {
@@ -131,10 +132,10 @@ class _RouteListState extends State<RouteList> {
     }
     showDialog(
         context: context,
-        builder: (context) {
+        builder: (dialogueContext) {
           String ascentStyle = "";
           DateTime ascentDate = DateTime.now();
-          return StatefulBuilder(builder: (context, setStateDialogue) {
+          return StatefulBuilder(builder: (builderContext, setStateDialogue) {
             return AlertDialog(
               title: Text('Log ascent', textAlign: TextAlign.center),
               content: Column(
@@ -150,9 +151,9 @@ class _RouteListState extends State<RouteList> {
                   DateTimeField(
                     initialValue: DateTime.now(),
                     format: DateFormat("dd-MM-yyyy"),
-                    onShowPicker: (context, currentValue) async {
+                    onShowPicker: (dialogueContext, currentValue) async {
                       final date = await showDatePicker(
-                          context: context,
+                          context: dialogueContext,
                           firstDate: DateTime(1900),
                           initialDate: DateTime.now(),
                           lastDate: DateTime(2100));
@@ -197,7 +198,7 @@ class _RouteListState extends State<RouteList> {
                                         MaterialStateProperty.all<Color>(
                                             Colors.grey)),
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.pop(dialogueContext);
                                 },
                                 child: Text('Cancel'))),
                         SizedBox(width: 20),
@@ -205,16 +206,12 @@ class _RouteListState extends State<RouteList> {
                             child: ElevatedButton(
                                 onPressed: () {
                                   if (ascentStyle != "") {
-                                    Navigator.pop(context);
-                                    dr
-                                        .addAscent(
-                                            route.id, ascentStyle, ascentDate)
-                                        .then((value) => {
-                                              setState(() {
-                                                widget.selectedRouteId =
-                                                    route.id;
-                                              }),
-                                            });
+                                    dr.addAscent(
+                                        route.id, ascentStyle, ascentDate);
+                                    setState(() {
+                                      climbedRoutes.add(route.id);
+                                    });
+                                    Navigator.pop(dialogueContext);
                                   } else {
                                     Fluttertoast.showToast(
                                       msg: "Must select ascent style",
@@ -230,7 +227,84 @@ class _RouteListState extends State<RouteList> {
         });
   }
 
-  void viewAscent(route) {}
+  void viewAscent(route) {
+    if (AuthenticationHelper().user == null) {
+      AuthenticationHelper().loginDialogue(context);
+      Fluttertoast.showToast(
+        msg: "Sign in to log climbs",
+      );
+      return;
+    }
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(AuthenticationHelper().user.uid)
+        .collection('ascents')
+        .where('routeId', isEqualTo: route.id)
+        .get()
+        .then((querySnapshot) => {
+              if (querySnapshot.size > 0)
+                {
+                  showDialog(
+                      context: context,
+                      builder: (dialogueContext) {
+                        return StatefulBuilder(
+                            builder: (builderContext, setStateDialogue) {
+                          Timestamp t = querySnapshot.docs.first['timestamp'];
+                          DateTime d = t.toDate();
+                          final DateFormat formatter =
+                              DateFormat('dd-MM-yyy hh:mm');
+                          return AlertDialog(
+                            title: Text(route['name'],
+                                textAlign: TextAlign.center),
+                            content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(querySnapshot.docs.first['style']),
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                      child: Text(formatter.format(d))),
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Expanded(
+                                                child: ElevatedButton(
+                                                    style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all<Color>(
+                                                                    Colors
+                                                                        .grey)),
+                                                    onPressed: () {
+                                                      dr.deleteAscent(route.id);
+                                                      setState(() {
+                                                        climbedRoutes
+                                                            .remove(route.id);
+                                                      });
+                                                      Navigator.pop(
+                                                          dialogueContext);
+                                                    },
+                                                    child: Text('Delete'))),
+                                            SizedBox(width: 20),
+                                            Expanded(
+                                                child: ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          dialogueContext);
+                                                    },
+                                                    child: Text(
+                                                        'Close'))) // button 2
+                                          ]))
+                                ]),
+                          );
+                        });
+                      })
+                }
+            });
+  }
 
   void optionsDialogue(
       {required String id,
@@ -495,7 +569,7 @@ class _RouteListState extends State<RouteList> {
                       expandedHeaderPadding: EdgeInsets.all(0),
                     );
                   }),
-                  SizedBox(height: 140),
+                  SizedBox(height: 80),
                 ]);
               }
             },

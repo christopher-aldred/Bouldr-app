@@ -26,6 +26,24 @@ class DataRepository {
     return result;
   }
 
+  Future<void> deleteAscent(String routeId) async {
+    final ascent = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(AuthenticationHelper().user.uid)
+        .collection('ascents')
+        .where('routeId', isEqualTo: routeId)
+        .get();
+
+    String ascentId = ascent.docs[0].id;
+
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(AuthenticationHelper().user.uid)
+        .collection('ascents')
+        .doc(ascentId)
+        .delete();
+  }
+
   Future<DocumentReference> addRoute(
       String venueId,
       String areaId,
