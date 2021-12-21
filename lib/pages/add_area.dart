@@ -50,8 +50,29 @@ class _AddAreaState extends State<AddArea> {
     Area newArea = Area(textControllerName.text, location!, 0,
         AuthenticationHelper().user.uid, textControllerDescription.text);
 
-    var response = dr.addArea(widget.venue.referenceId.toString(), newArea);
+    var response =
+        await dr.addArea(widget.venue.referenceId.toString(), newArea);
 
+    newArea.referenceId = response.id;
+
+    Navigator.pop(context);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VenuePage(widget.venue.referenceId.toString()),
+      ),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AreaPage(widget.venue.referenceId.toString(),
+            newArea.referenceId.toString()),
+      ),
+    );
+
+    /*
     response.then((value) => {
           newArea.referenceId = value.id,
           Navigator.pop(context),
@@ -71,6 +92,7 @@ class _AddAreaState extends State<AddArea> {
             ),
           )
         });
+        */
     /*
     Navigator.pushReplacement(
       context,

@@ -26,17 +26,92 @@ class _AreaPageState extends State<AreaPage> {
   Area area = Area("Loading...", LatLng(999, 999), 0, "");
   DataRepository dataRepository = DataRepository();
   int sectionCount = -1;
+  String selectedSectionId = "";
+
+  void deleteDialogue(String selectedSectionId) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: Text('Delete section'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child:
+                        Text('Are you sure you want to delete this section?'),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.grey)),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('Cancel'))),
+                          SizedBox(width: 20),
+                          Expanded(
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.red)),
+                                  onPressed: () {
+                                    dataRepository
+                                        .deleteSection(widget.venueId,
+                                            widget.areaId, selectedSectionId)
+                                        .then((value) => {
+                                              Navigator.pop(context),
+                                              Fluttertoast.showToast(
+                                                msg: value,
+                                              ),
+                                              if (value == "Section deleted")
+                                                {
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          AreaPage(
+                                                              widget.venueId,
+                                                              widget.areaId),
+                                                    ),
+                                                  )
+                                                }
+                                            });
+                                  },
+                                  child: Text('Delete'))) // button 2
+                        ]),
+                  )
+                ],
+              ));
+        });
+  }
 
   SectionPageView getSectionPageView() {
     if (widget.sectionId == null) {
-      return SectionPageView(widget.venueId, widget.areaId);
+      return SectionPageView(
+        widget.venueId,
+        widget.areaId,
+        onSectionChanged: (id) => {selectedSectionId = id},
+      );
     } else {
       if (widget.routeId == null) {
         return SectionPageView(widget.venueId, widget.areaId,
+            onSectionChanged: (id) => {selectedSectionId = id},
             sectionId: widget.sectionId);
       } else {
         return SectionPageView(widget.venueId, widget.areaId,
-            sectionId: widget.sectionId, routeId: widget.routeId);
+            onSectionChanged: (id) => {selectedSectionId = id},
+            sectionId: widget.sectionId,
+            routeId: widget.routeId);
       }
     }
   }
@@ -70,7 +145,34 @@ class _AreaPageState extends State<AreaPage> {
         }
 
         break;
-      case 'Settings':
+      case 'Delete section':
+        if (AuthenticationHelper().user != null) {
+          deleteDialogue(selectedSectionId);
+          /*
+          dataRepository
+              .deleteSection(widget.venueId, widget.areaId, selectedSectionId)
+              .then((value) => {
+                    Fluttertoast.showToast(
+                      msg: value,
+                    ),
+                    if (value == "Section deleted")
+                      {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AreaPage(widget.venueId, widget.areaId),
+                          ),
+                        )
+                      }
+                  });
+                  */
+        } else {
+          Fluttertoast.showToast(
+            msg: 'Must be logged in to perform this action',
+          );
+          AuthenticationHelper().loginDialogue(context);
+        }
         break;
     }
   }
@@ -123,9 +225,7 @@ class _AreaPageState extends State<AreaPage> {
             PopupMenuButton<String>(
               onSelected: (handleActions),
               itemBuilder: (BuildContext context) {
-                return {
-                  'Add section',
-                }.map((String choice) {
+                return {'Add section', 'Delete section'}.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),

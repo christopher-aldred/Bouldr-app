@@ -1,6 +1,5 @@
 //import 'package:bouldr/models/section.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Ascent {
   //Required
@@ -28,9 +27,6 @@ class Ascent {
 }
 
 Ascent _AscentFromJson(Map<String, dynamic> json) {
-  GeoPoint pos = json['location'];
-  LatLng latLng = LatLng(pos.latitude, pos.longitude);
-
   Ascent ascent = Ascent(
     json['routeId'],
     json['style'],

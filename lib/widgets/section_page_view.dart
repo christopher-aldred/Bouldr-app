@@ -11,8 +11,10 @@ class SectionPageView extends StatefulWidget {
   final String areaId;
   String? sectionId;
   String? routeId;
+  final Function(String) onSectionChanged;
 
-  SectionPageView(this.venueId, this.areaId, {this.sectionId, this.routeId});
+  SectionPageView(this.venueId, this.areaId,
+      {required this.onSectionChanged, this.sectionId, this.routeId});
 
   @override
   _SectionPageViewState createState() => _SectionPageViewState();
@@ -36,6 +38,7 @@ class _SectionPageViewState extends State<SectionPageView> {
           .collection('areas')
           .doc(widget.areaId)
           .collection('sections')
+          .orderBy('name')
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -43,7 +46,10 @@ class _SectionPageViewState extends State<SectionPageView> {
             child: CircularProgressIndicator(),
           );
         } else {
+          widget.onSectionChanged(snapshot.data!.docs[0].id);
           return PreloadPageView.builder(
+            onPageChanged: (index) =>
+                {widget.onSectionChanged(snapshot.data!.docs[index].id)},
             controller: controller,
             itemBuilder: (context, position) {
               if (widget.sectionId != null) {

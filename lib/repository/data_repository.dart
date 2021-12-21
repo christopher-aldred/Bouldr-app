@@ -41,7 +41,8 @@ class DataRepository {
         .doc(AuthenticationHelper().user.uid)
         .collection('ascents')
         .doc(ascentId)
-        .delete();
+        .delete()
+        .then((value) => {updateUserTimestamp()});
   }
 
   Future<DocumentReference> addRoute(
@@ -166,19 +167,33 @@ class DataRepository {
     return result;
   }
 
-  void deleteSection(String venueId, String areaId, String sectionId) async {
+  Future<String> deleteSection(
+      String venueId, String areaId, String sectionId) async {
+    //
+    if (sectionId == "") {
+      return "Error no section";
+    }
+
     String filePath = "/images/" + venueId + "/" + sectionId + "/";
-    deleteFolderContents(filePath);
+
     final CollectionReference sections = FirebaseFirestore.instance
         .collection('venues')
         .doc(venueId)
         .collection('areas')
         .doc(areaId)
         .collection('sections');
-    await sections
-        .doc(sectionId)
-        .delete()
-        .then((value) => {updateUserTimestamp()});
+
+    final section = await sections.doc(sectionId).get();
+
+    if (AuthenticationHelper().user.uid == section['createdBy']) {
+      await sections.doc(sectionId).delete().then((value) => {
+            deleteFolderContents(filePath),
+            updateUserTimestamp(),
+          });
+      return "Section deleted";
+    } else {
+      return "Must be creator to delete";
+    }
   }
 
   void updateSection(String venueId, String areaId, Section section) async {
@@ -322,7 +337,10 @@ class DataRepository {
 
   void deleteVenue(String venueId) async {
     String filePath = "/images/" + venueId + "/";
-    deleteFolderContents(filePath);
+
+    if (venueId == "") {
+      return;
+    }
 
     FirebaseFirestore.instance
         .collection('venues')
@@ -337,7 +355,8 @@ class DataRepository {
 
     final CollectionReference venues =
         FirebaseFirestore.instance.collection('venues');
-    await venues.doc(venueId).delete().then((value) => {updateUserTimestamp()});
+    await venues.doc(venueId).delete().then(
+        (value) => {deleteFolderContents(filePath), updateUserTimestamp()});
   }
 
   void addUserDisplayName(String uid, String displayName) {

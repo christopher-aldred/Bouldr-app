@@ -2,7 +2,6 @@
 
 import 'package:bouldr/models/section.dart';
 import 'package:bouldr/pages/add_route_1.dart';
-import 'package:bouldr/pages/add_section.dart';
 import 'package:bouldr/utils/authentication.dart';
 import 'package:bouldr/widgets/route_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';

@@ -11,7 +11,6 @@ import '../customisations/expansion_panel.dart' as custom_expansion_panel;
 import 'package:share/share.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
-import 'package:bouldr/models/route.dart' as custom_route;
 
 // ignore: must_be_immutable
 class RouteList extends StatefulWidget {
