@@ -71,36 +71,6 @@ class _AddAreaState extends State<AddArea> {
             newArea.referenceId.toString()),
       ),
     );
-
-    /*
-    response.then((value) => {
-          newArea.referenceId = value.id,
-          Navigator.pop(context),
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  VenuePage(widget.venue.referenceId.toString()),
-            ),
-          ),
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AreaPage(
-                  widget.venue.referenceId.toString(),
-                  newArea.referenceId.toString()),
-            ),
-          )
-        });
-        */
-    /*
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => VenuePage(widget.venue.referenceId.toString()),
-      ),
-    );
-    */
   }
 
   @override

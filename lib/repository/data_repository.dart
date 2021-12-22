@@ -335,28 +335,32 @@ class DataRepository {
         .then((value) => {updateUserTimestamp()});
   }
 
-  void deleteVenue(String venueId) async {
+  Future<String> deleteVenue(String venueId) async {
     String filePath = "/images/" + venueId + "/";
 
     if (venueId == "") {
-      return;
+      return "Error";
     }
-
-    FirebaseFirestore.instance
-        .collection('venues')
-        .doc(venueId)
-        .collection('areas')
-        .snapshots()
-        .forEach((element) {
-      for (QueryDocumentSnapshot snapshot in element.docs) {
-        snapshot.reference.delete();
-      }
-    });
 
     final CollectionReference venues =
         FirebaseFirestore.instance.collection('venues');
-    await venues.doc(venueId).delete().then(
-        (value) => {deleteFolderContents(filePath), updateUserTimestamp()});
+
+    final venue = await venues.doc(venueId).get();
+
+    if (AuthenticationHelper().user.uid == venue['createdBy']) {
+      venues.doc(venueId).collection('areas').snapshots().forEach((element) {
+        for (QueryDocumentSnapshot snapshot in element.docs) {
+          snapshot.reference.delete();
+        }
+      });
+
+      await venues.doc(venueId).delete().then(
+          (value) => {deleteFolderContents(filePath), updateUserTimestamp()});
+
+      return "Venue deleted";
+    } else {
+      return "Must be creator to delete";
+    }
   }
 
   void addUserDisplayName(String uid, String displayName) {

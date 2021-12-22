@@ -180,25 +180,6 @@ class _VenuePageState extends State<VenuePage> {
                       ])),
                   GradeBarChart(widget.venueId),
                 ])),
-
-            /*
-            Visibility(
-              visible: !noRoutes(),
-              child: Padding(
-                padding: EdgeInsets.all(0),
-                child: SizedBox(
-                    height: MediaQuery.of(context).size.height / 4,
-                    width: double.infinity,
-                    child: Card(
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
-                      color: Colors.transparent,
-                      child: GradeBarChart(widget.venueId),
-                    )),
-              ),
-            ),
-            */
             Padding(
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                 child: Column(children: [

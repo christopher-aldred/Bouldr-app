@@ -15,37 +15,135 @@ class GradeBarChart extends StatefulWidget {
 }
 
 class _GradeBarChartState extends State<GradeBarChart> {
+  List<int> gradeCount = [0, 0, 0, 0, 0];
   late SharedPreferences prefs;
-  late List<dynamic> gradeCount;
+
+  bool noRoutes() {
+    int routeCount = 0;
+    routeCount += gradeCount[0] +
+        gradeCount[1] +
+        gradeCount[2] +
+        gradeCount[3] +
+        gradeCount[4];
+    return routeCount == 0;
+  }
+
+  void getCachedGrades() async {
+    prefs = await SharedPreferences.getInstance();
+    List<int> grades = [0, 0, 0, 0, 0];
+    List<String>? gradesString =
+        prefs.getStringList('grades:' + widget.venueId);
+    if (gradesString != null) {
+      grades[0] = int.parse(gradesString[0]);
+      grades[1] = int.parse(gradesString[1]);
+      grades[2] = int.parse(gradesString[2]);
+      grades[3] = int.parse(gradesString[3]);
+      grades[4] = int.parse(gradesString[4]);
+    }
+
+    gradeCount = grades;
+  }
 
   @override
   void initState() {
     super.initState();
-    getPrefs();
+    getCachedGrades();
+    updateGrades();
   }
 
-  void getPrefs() async {
+  void setCachedGrades(List<int> gradeCount) {
+    List<String> grades = ["", "", "", "", ""];
+    grades[0] = gradeCount[0].toString();
+    grades[1] = gradeCount[1].toString();
+    grades[2] = gradeCount[2].toString();
+    grades[3] = gradeCount[3].toString();
+    grades[4] = gradeCount[4].toString();
+    prefs.setStringList('grades:' + widget.venueId, grades);
+  }
+
+  void updateGrades() async {
+    List<int> grades = [0, 0, 0, 0, 0];
+
+    var areas = await FirebaseFirestore.instance
+        .collection('venues')
+        .doc(widget.venueId)
+        .collection('areas')
+        .get();
+
+    for (int areaIndex = 0; areaIndex < areas.docs.length; areaIndex++) {
+      var sections = await FirebaseFirestore.instance
+          .collection('venues')
+          .doc(widget.venueId)
+          .collection('areas')
+          .doc(areas.docs.elementAt(areaIndex).id)
+          .collection('sections')
+          .get();
+
+      for (int sectionIndex = 0;
+          sectionIndex < sections.docs.length;
+          sectionIndex++) {
+        var routes = await FirebaseFirestore.instance
+            .collection('venues')
+            .doc(widget.venueId)
+            .collection('areas')
+            .doc(areas.docs.elementAt(areaIndex).id)
+            .collection('sections')
+            .doc(sections.docs.elementAt(sectionIndex).id)
+            .collection('routes')
+            .get();
+
+        for (int routeIndex = 0;
+            routeIndex < routes.docs.length;
+            routeIndex++) {
+          var route = await FirebaseFirestore.instance
+              .collection('venues')
+              .doc(widget.venueId)
+              .collection('areas')
+              .doc(areas.docs.elementAt(areaIndex).id)
+              .collection('sections')
+              .doc(sections.docs.elementAt(sectionIndex).id)
+              .collection('routes')
+              .doc(routes.docs.elementAt(routeIndex).id)
+              .get();
+
+          if (route['grade'] <= 2) {
+            grades[0] += 1;
+          }
+          if (route['grade'] > 2 && route['grade'] <= 4) {
+            grades[1] += 1;
+          }
+          if (route['grade'] > 4 && route['grade'] <= 10) {
+            grades[2] += 1;
+          }
+          if (route['grade'] > 10 && route['grade'] <= 16) {
+            grades[3] += 1;
+          }
+          if (route['grade'] > 16) {
+            grades[4] += 1;
+          }
+        }
+      }
+    }
+    setState(() {
+      gradeCount = grades;
+    });
+    setCachedGrades(grades);
+  }
+
+  Future<String> getGradingScale() async {
     prefs = await SharedPreferences.getInstance();
+    var defaultHomeTab = prefs.getString('gradingScale');
+    return Future.value(defaultHomeTab);
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('venues')
-            .doc(widget.venueId)
-            .snapshots(),
-        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Text("Loading");
-          }
-
-          try {
-            gradeCount = snapshot.data!['grades'];
-          } catch (e) {
+    return FutureBuilder<String>(
+        future: getGradingScale(),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (noRoutes()) {
             return Text('No routes');
           }
-
           return AspectRatio(
               aspectRatio: 3,
               child: Stack(children: <Widget>[
@@ -68,43 +166,43 @@ class _GradeBarChartState extends State<GradeBarChart> {
                           getTitles: (double value) {
                             switch (value.toInt()) {
                               case 0:
-                                if (prefs.getString('gradingScale') == "v") {
+                                if (snapshot.data == "v") {
                                   return 'VB - V0';
                                 }
-                                if (prefs.getString('gradingScale') == "f") {
+                                if (snapshot.data == "f") {
                                   return 'f3 - f4';
                                 }
                                 return "";
 
                               case 1:
-                                if (prefs.getString('gradingScale') == "v") {
+                                if (snapshot.data == "v") {
                                   return 'V1 - V2';
                                 }
-                                if (prefs.getString('gradingScale') == "f") {
+                                if (snapshot.data == "f") {
                                   return 'f4 - f5';
                                 }
                                 return "";
                               case 2:
-                                if (prefs.getString('gradingScale') == "v") {
+                                if (snapshot.data == "v") {
                                   return 'V3 - V5';
                                 }
-                                if (prefs.getString('gradingScale') == "f") {
+                                if (snapshot.data == "f") {
                                   return 'f6A - f6C';
                                 }
                                 return "";
                               case 3:
-                                if (prefs.getString('gradingScale') == "v") {
+                                if (snapshot.data == "v") {
                                   return 'V6 - V10';
                                 }
-                                if (prefs.getString('gradingScale') == "f") {
+                                if (snapshot.data == "f") {
                                   return 'f7A - f7C';
                                 }
                                 return "";
                               case 4:
-                                if (prefs.getString('gradingScale') == "v") {
+                                if (snapshot.data == "v") {
                                   return 'V11+';
                                 }
-                                if (prefs.getString('gradingScale') == "f") {
+                                if (snapshot.data == "f") {
                                   return 'f8A+';
                                 }
                                 return "";
